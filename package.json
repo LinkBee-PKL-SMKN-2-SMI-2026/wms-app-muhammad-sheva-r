@@ -25,7 +25,7 @@
     "setup": "bun run db:up && bun run db:generate && bun run db:migrate"
   },
   "prisma": {
-    "seed": "bun run ./prisma/seed/index.ts"
+    "seed": "tsx prisma/seed/index.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

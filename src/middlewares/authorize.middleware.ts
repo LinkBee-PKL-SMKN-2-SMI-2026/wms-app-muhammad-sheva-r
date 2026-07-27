@@ -10,24 +10,19 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 export const authorize = (...roles: string[]) => {
-  return async (
-    req: AuthRequest,
-    _res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  return async (req: AuthRequest, _res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.user) {
         return next(new AppError('Unauthorized', 401));
       }
 
-      // Ambil userId menggunakan fallback type assertion
-      const userId = req.user.userId || (req.user as any).id;
+      const userPayload = req.user as unknown as Record<string, unknown>;
+      const userId = (req.user.userId || userPayload.id) as string;
 
       if (!userId) {
         return next(new AppError('Unauthorized', 401));
       }
 
-      // Ambil data user dari database berdasarkan userId
       const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { role: true },
@@ -37,11 +32,8 @@ export const authorize = (...roles: string[]) => {
         return next(new AppError('User tidak ditemukan', 404));
       }
 
-      // Cek apakah role user ada di dalam daftar role yang diizinkan
       if (!roles.includes(user.role)) {
-        return next(
-          new AppError('Akses ditolak. Anda tidak memiliki izin', 403)
-        );
+        return next(new AppError('Akses ditolak. Anda tidak memiliki izin', 403));
       }
 
       next();

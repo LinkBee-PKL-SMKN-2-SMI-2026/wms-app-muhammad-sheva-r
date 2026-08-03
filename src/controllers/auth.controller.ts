@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
-
 import { catchAsync } from '../utils/catchAsync';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';

@@ -2,10 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { authorize } from '../middlewares/authorize.middleware';
 import { validate } from '../middlewares/validate.middleware';
-import {
-  CreateExampleSchema,
-  UpdateExampleSchema,
-} from '../validations/example.validation';
+import { CreateExampleSchema, UpdateExampleSchema } from '../validations/example.validation';
 import {
   createHandler,
   getAllHandler,
@@ -21,13 +18,7 @@ router.get('/', authenticate, getAllHandler);
 router.get('/:id', authenticate, getByIdHandler);
 
 // Endpoint Terproteksi Role ADMIN
-router.post(
-  '/',
-  authenticate,
-  authorize('ADMIN'),
-  validate(CreateExampleSchema),
-  createHandler
-);
+router.post('/', authenticate, authorize('ADMIN'), validate(CreateExampleSchema), createHandler);
 
 router.delete('/:id', authenticate, authorize('ADMIN'), deleteHandler);
 
@@ -37,7 +28,7 @@ router.put(
   authenticate,
   authorize('ADMIN', 'MANAGER'),
   validate(UpdateExampleSchema),
-  updateHandler
+  updateHandler,
 );
 
 export default router;

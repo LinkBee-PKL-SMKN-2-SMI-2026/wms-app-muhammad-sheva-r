@@ -50,7 +50,7 @@ export const BulkCreateExampleSchema = z.object({
     z.object({
       title: z.string({ message: 'Title wajib diisi' }),
       description: z.string().optional(),
-    })
+    }),
   ),
 });
 

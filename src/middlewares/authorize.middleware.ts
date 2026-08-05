@@ -8,11 +8,7 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 export const authorize = (...roles: string[]) => {
-  return async (
-    req: AuthRequest,
-    _res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  return async (req: AuthRequest, _res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.user || !req.user.userId) {
         return next(new AppError('Unauthorized', 401));
@@ -28,9 +24,7 @@ export const authorize = (...roles: string[]) => {
       }
 
       if (!roles.includes(user.role)) {
-        return next(
-          new AppError('Forbidden: Anda tidak memiliki akses ke resource ini', 403)
-        );
+        return next(new AppError('Forbidden: Anda tidak memiliki akses ke resource ini', 403));
       }
 
       next();

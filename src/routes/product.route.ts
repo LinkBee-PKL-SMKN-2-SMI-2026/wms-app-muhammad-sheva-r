@@ -16,16 +16,18 @@ import {
   getProductById,
   updateProduct,
   deleteProduct,
+  getProductStockInfo,
 } from '../controllers/product.controller';
 
 const router = Router();
 
-// Proteksi global (harus login)
+// Proteksi global (semua route di bawah wajib login)
 router.use(authenticate);
 
-// GET All & GET By ID (Semua user terautentikasi)
+// GET All & GET By ID & Stock Info (Semua user terautentikasi)
 router.get('/', validate(GetAllProductSchema), getAllProducts);
 router.get('/:id', validate(GetProductByIdSchema), getProductById);
+router.get('/:id/stock', getProductStockInfo); // 👈 2. Hapus 'authenticate'-nya di sini (karena udah ada router.use)
 
 // POST, PUT, DELETE (Hanya ADMIN / MANAGER)
 router.post('/', authorize('ADMIN', 'MANAGER'), validate(CreateProductSchema), createProduct);

@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import type { RegisterRequest, LoginRequest } from '../models/auth.dto';
 import type { TokenPayload } from '../models/auth.model';
+import type { AuthRequest } from '../middlewares/authenticate.middleware';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
@@ -110,5 +111,33 @@ export const login = catchAsync(async (req: Request, res: Response) => {
         refreshToken,
       },
     },
+  });
+});
+
+export const getMe = catchAsync(async (req: AuthRequest, res: Response) => {
+  const { userId } = req.user as TokenPayload;
+
+  const user = await prisma.users.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError('User tidak ditemukan', 404);
+  }
+
+  logger.info(`Fetched profile for user ID: ${userId}`);
+
+  return res.status(200).json({
+    success: true,
+    message: 'Data user berhasil diambil',
+    data: user,
   });
 });

@@ -2,40 +2,48 @@ import type { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { catchAsync } from '../utils/catchAsync';
-import type { SummaryResponse, LowStockProduct } from '../models/reporting.dto';
+import type { SummaryResponse, LowStockProduct, GetSummaryQuery, GetLowStockQuery } from '../models/reporting.dto';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 export const getSummary = catchAsync(async (req: Request, res: Response) => {
-  const dateStr = req.query.date as string | undefined;
+  const { date } = (req.query as unknown as GetSummaryQuery) || {};
+  
+  const baseDate = date ? new Date(date) : new Date();
+  const startOfDay = new Date(baseDate);
+  startOfDay.setHours(0, 0, 0, 0);
 
-  const targetDate = dateStr ? new Date(dateStr) : new Date();
+  const endOfDay = new Date(baseDate);
+  endOfDay.setHours(23, 59, 59, 999);
 
-  const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
-  const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
-
-  const [totalProducts, totalCategories, totalLocations, totalUsers, inboundToday, outboundToday] =
-    await Promise.all([
-      prisma.products.count(),
-      prisma.categories.count(),
-      prisma.locations.count(),
-      prisma.users.count(),
-      prisma.stock_Movements.aggregate({
-        where: {
-          type: 'INBOUND',
-          createdAt: { gte: startOfDay, lte: endOfDay },
-        },
-        _sum: { quantity: true },
-      }),
-      prisma.stock_Movements.aggregate({
-        where: {
-          type: 'OUTBOUND',
-          createdAt: { gte: startOfDay, lte: endOfDay },
-        },
-        _sum: { quantity: true },
-      }),
-    ]);
+  const [
+    totalProducts, 
+    totalCategories, 
+    totalLocations, 
+    totalUsers, 
+    inboundToday, 
+    outboundToday
+  ] = await Promise.all([
+    prisma.products.count(),
+    prisma.categories.count(),
+    prisma.locations.count(),
+    prisma.users.count(),
+    prisma.stock_Movements.aggregate({
+      where: {
+        type: 'INBOUND',
+        createdAt: { gte: startOfDay, lte: endOfDay },
+      },
+      _sum: { quantity: true },
+    }),
+    prisma.stock_Movements.aggregate({
+      where: {
+        type: 'OUTBOUND',
+        createdAt: { gte: startOfDay, lte: endOfDay },
+      },
+      _sum: { quantity: true },
+    }),
+  ]);
 
   const summaryData: SummaryResponse = {
     totalProducts,
@@ -54,14 +62,16 @@ export const getSummary = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getLowStock = catchAsync(async (req: Request, res: Response) => {
-  const threshold = Number(req.query.threshold) || 10;
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const { threshold, page, limit } = (req.query as unknown as GetLowStockQuery) || {};
 
-  const skip = (page - 1) * limit;
+  const thresholdNum = Number(threshold) || 10;
+  const pageNum = Number(page) || 1;
+  const limitNum = Number(limit) || 10;
+
+  const skip = (pageNum - 1) * limitNum;
 
   const whereClause = {
-    stock: { lt: threshold },
+    stock: { lt: thresholdNum },
     isActive: true,
   };
 
@@ -74,7 +84,7 @@ export const getLowStock = catchAsync(async (req: Request, res: Response) => {
       },
       orderBy: { stock: 'asc' },
       skip,
-      take: limit,
+      take: limitNum,
     }),
     prisma.products.count({ where: whereClause }),
   ]);
@@ -94,10 +104,10 @@ export const getLowStock = catchAsync(async (req: Request, res: Response) => {
     message: 'Low stock products retrieved successfully',
     data: formattedProducts,
     pagination: {
-      page,
-      limit,
+      page: pageNum,
+      limit: limitNum,
       total,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(total / limitNum),
     },
   });
 });

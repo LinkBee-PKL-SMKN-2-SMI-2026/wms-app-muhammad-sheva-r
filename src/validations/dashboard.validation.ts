@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-
 export const GetDashboardStatsSchema = z.object({
   query: z
     .object({

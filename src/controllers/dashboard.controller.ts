@@ -6,7 +6,6 @@ import { catchAsync } from '../utils/catchAsync';
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-
 const getDateFilter = (period: string): Date => {
   const now = new Date();
   switch (period) {
@@ -19,7 +18,6 @@ const getDateFilter = (period: string): Date => {
       return new Date(now.setDate(now.getDate() - 7));
   }
 };
-
 
 export const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
   const period = (req.query.period as string) || 'week';
@@ -35,7 +33,6 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
     topMovementsAgg,
     categoryDistributionRaw,
   ] = await Promise.all([
-    
     prisma.products.count({ where: { isActive: true } }),
     prisma.products.aggregate({
       where: { isActive: true },
@@ -51,7 +48,6 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
       where: { isActive: true, stock: 0 },
     }),
 
-    
     prisma.stock_Movements.aggregate({
       where: {
         type: 'INBOUND',
@@ -67,7 +63,6 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
       _sum: { quantity: true },
     }),
 
-    
     prisma.stock_Movements.groupBy({
       by: ['productId'],
       where: { createdAt: { gte: dateFilter } },
@@ -76,7 +71,6 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
       take: 5,
     }),
 
-   
     prisma.categories.findMany({
       select: {
         name: true,
@@ -88,7 +82,6 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
     }),
   ]);
 
- 
   const topProductIds = topMovementsAgg.map((item) => item.productId);
   const productsInfo = await prisma.products.findMany({
     where: { id: { in: topProductIds } },
@@ -105,7 +98,6 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
     };
   });
 
-  
   const categoryDistribution = categoryDistributionRaw.map((cat) => ({
     categoryName: cat.name,
     productCount: cat.products.length,
@@ -135,7 +127,6 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
     },
   });
 });
-
 
 export const getRecentMovements = catchAsync(async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;

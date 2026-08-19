@@ -11,11 +11,14 @@ export const GetSummarySchema = z.object({
     .optional(),
 });
 
-
 export const GetLowStockSchema = z.object({
   query: z
     .object({
-      threshold: z.coerce.number().int().positive('Threshold harus berupa angka positif').default(10),
+      threshold: z.coerce
+        .number()
+        .int()
+        .positive('Threshold harus berupa angka positif')
+        .default(10),
       page: z.coerce.number().int().positive('Page harus minimal 1').default(1),
       limit: z.coerce.number().int().positive().max(100, 'Limit maksimal 100').default(10),
     })

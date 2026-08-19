@@ -6,9 +6,7 @@ import { authenticate } from '../middlewares/authenticate.middleware';
 
 const router = Router();
 
-
 router.get('/summary', authenticate, validate(GetSummarySchema), getSummary);
-
 
 router.get('/low-stock', authenticate, validate(GetLowStockSchema), getLowStock);
 

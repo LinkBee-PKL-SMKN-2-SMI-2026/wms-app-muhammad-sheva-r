@@ -2,14 +2,19 @@ import type { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { catchAsync } from '../utils/catchAsync';
-import type { SummaryResponse, LowStockProduct, GetSummaryQuery, GetLowStockQuery } from '../models/reporting.dto';
+import type {
+  SummaryResponse,
+  LowStockProduct,
+  GetSummaryQuery,
+  GetLowStockQuery,
+} from '../models/reporting.dto';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 export const getSummary = catchAsync(async (req: Request, res: Response) => {
   const { date } = (req.query as unknown as GetSummaryQuery) || {};
-  
+
   const baseDate = date ? new Date(date) : new Date();
   const startOfDay = new Date(baseDate);
   startOfDay.setHours(0, 0, 0, 0);
@@ -17,33 +22,27 @@ export const getSummary = catchAsync(async (req: Request, res: Response) => {
   const endOfDay = new Date(baseDate);
   endOfDay.setHours(23, 59, 59, 999);
 
-  const [
-    totalProducts, 
-    totalCategories, 
-    totalLocations, 
-    totalUsers, 
-    inboundToday, 
-    outboundToday
-  ] = await Promise.all([
-    prisma.products.count(),
-    prisma.categories.count(),
-    prisma.locations.count(),
-    prisma.users.count(),
-    prisma.stock_Movements.aggregate({
-      where: {
-        type: 'INBOUND',
-        createdAt: { gte: startOfDay, lte: endOfDay },
-      },
-      _sum: { quantity: true },
-    }),
-    prisma.stock_Movements.aggregate({
-      where: {
-        type: 'OUTBOUND',
-        createdAt: { gte: startOfDay, lte: endOfDay },
-      },
-      _sum: { quantity: true },
-    }),
-  ]);
+  const [totalProducts, totalCategories, totalLocations, totalUsers, inboundToday, outboundToday] =
+    await Promise.all([
+      prisma.products.count(),
+      prisma.categories.count(),
+      prisma.locations.count(),
+      prisma.users.count(),
+      prisma.stock_Movements.aggregate({
+        where: {
+          type: 'INBOUND',
+          createdAt: { gte: startOfDay, lte: endOfDay },
+        },
+        _sum: { quantity: true },
+      }),
+      prisma.stock_Movements.aggregate({
+        where: {
+          type: 'OUTBOUND',
+          createdAt: { gte: startOfDay, lte: endOfDay },
+        },
+        _sum: { quantity: true },
+      }),
+    ]);
 
   const summaryData: SummaryResponse = {
     totalProducts,

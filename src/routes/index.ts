@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import auth from './auth.route';
+import authRoute from './auth.route';
+import reportingRoute from './reporting.route';
 import dashboard from './dashboard.route';
 
 const router = Router();
 
-router.use('/auth', auth);
-
+router.use('/auth', authRoute);
+router.use('/reports', reportingRoute);
 router.use('/dashboard', dashboard);
 
 export default router;

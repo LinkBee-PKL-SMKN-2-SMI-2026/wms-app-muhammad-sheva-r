@@ -6,12 +6,12 @@ import { authenticate } from '../middlewares/authenticate.middleware';
 import { AppError } from '../utils/AppError';
 
 const router = Router();
-router.use(authenticate)
+router.use(authenticate);
 router.get('/summary', validate(GetSummarySchema), getSummary);
 
 router.get('/low-stock', validate(GetLowStockSchema), getLowStock);
 
 router.all('{*path}', (_req, _res, next) => {
-    next(new AppError('Method not allowed', 405));
+  next(new AppError('Method not allowed', 405));
 });
 export default router;

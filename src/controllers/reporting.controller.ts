@@ -13,7 +13,7 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 export const getSummary = catchAsync(async (req: Request, res: Response) => {
-  const { date } = (req.query as unknown as GetSummaryQuery) || {};
+  const { date } = (req.query as GetSummaryQuery) || {};
 
   const baseDate = date ? new Date(date) : new Date();
   const startOfDay = new Date(baseDate);

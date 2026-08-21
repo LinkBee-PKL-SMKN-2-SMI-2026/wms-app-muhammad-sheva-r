@@ -3,11 +3,15 @@ import { validate } from '../middlewares/validate.middleware';
 import { GetSummarySchema, GetLowStockSchema } from '../validations/reporting.validation';
 import { getSummary, getLowStock } from '../controllers/reporting.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
+import { AppError } from '../utils/AppError';
 
 const router = Router();
+router.use(authenticate)
+router.get('/summary', validate(GetSummarySchema), getSummary);
 
-router.get('/summary', authenticate, validate(GetSummarySchema), getSummary);
+router.get('/low-stock', validate(GetLowStockSchema), getLowStock);
 
-router.get('/low-stock', authenticate, validate(GetLowStockSchema), getLowStock);
-
+router.all('{*path}', (_req, _res, next) => {
+    next(new AppError('Method not allowed', 405));
+});
 export default router;

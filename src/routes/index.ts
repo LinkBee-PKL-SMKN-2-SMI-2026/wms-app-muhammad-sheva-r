@@ -6,7 +6,6 @@ import category from './category.route';
 import location from './location.route';
 import product from './product.route';
 
-
 const router = Router();
 
 router.use('/auth', authRoute);

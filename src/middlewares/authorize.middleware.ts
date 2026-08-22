@@ -1,11 +1,9 @@
 import type { Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
 import { AppError } from '../utils/AppError';
 import type { AuthRequest } from './authenticate.middleware';
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 

@@ -9,7 +9,7 @@ import type {
   CreateOutboundDTO,
   GetMovementHistoryDTO,
 } from '../models/stock-movement.dto';
-
+import { logActivity } from '../services/activity-log.service';
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
@@ -51,6 +51,14 @@ export const createInbound = async (
       });
 
       return { movement, updatedProduct };
+    });
+
+    logActivity({
+      userId,
+      action: 'CREATE',
+      entity: 'Stock_Movements',
+      entityId: result.movement.id,
+      detail: { type: 'INBOUND', productId, quantity },
     });
 
     res.status(201).json({
@@ -113,6 +121,14 @@ export const createOutbound = async (
       });
 
       return { movement, updatedProduct };
+    });
+
+    logActivity({
+      userId,
+      action: 'CREATE',
+      entity: 'Stock_Movements',
+      entityId: result.movement.id,
+      detail: { type: 'OUTBOUND', productId, quantity },
     });
 
     res.status(201).json({

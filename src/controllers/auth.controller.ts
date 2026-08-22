@@ -9,6 +9,7 @@ import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
 import { logger } from '../utils/logger';
+import { logActivity } from '../services/activity-log.service';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -36,7 +37,7 @@ export const register = catchAsync(async (req: Request, res: Response) => {
       password: hashedPassword,
     },
   });
-
+  logActivity({ userId: user.id, action: 'CREATE', entity: 'Users', entityId: user.id });
   logger.info(`User registered successfully: ${user.email}`);
 
   // 4. Generate Tokens
@@ -85,6 +86,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
     throw new AppError('Email atau password salah', 401);
   }
 
+  logActivity({ userId: user.id, action: 'LOGIN', entity: 'Users' });
   logger.info(`User logged in successfully: ${user.email}`);
 
   // 3. Generate Tokens

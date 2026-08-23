@@ -1,0 +1,103 @@
+openapi: 3.1.0
+info:
+  title: Locations Module API
+  version: 1.0.0
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /api/locations:
+    get:
+      summary: Mengambil semua lokasi
+      tags:
+        - Locations
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Berhasil mengambil data lokasi
+    post:
+      summary: Membuat lokasi baru (Hanya Admin)
+      tags:
+        - Locations
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - code
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                  maxLength: 10
+      responses:
+        '201':
+          description: Lokasi berhasil dibuat
+
+  /api/locations/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Mengambil detail lokasi
+      tags:
+        - Locations
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mengambil lokasi
+    put:
+      summary: Mengubah lokasi (Hanya Admin)
+      tags:
+        - Locations
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: Lokasi berhasil diubah
+    delete:
+      summary: Menghapus lokasi (Hanya Admin)
+      tags:
+        - Locations
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lokasi berhasil dihapus

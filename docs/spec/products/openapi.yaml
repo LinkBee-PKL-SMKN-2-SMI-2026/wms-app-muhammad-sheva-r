@@ -1,0 +1,43 @@
+/api/products/{id}/stock:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Mengambil informasi spesifik stok produk
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mengambil info stok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      productId:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      sku:
+                        type: string
+                      currentStock:
+                        type: integer
+                      minimumStock:
+                        type: integer
+                      status:
+                        type: string
+                        enum: [safe, low, out]

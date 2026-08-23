@@ -1,0 +1,111 @@
+openapi: 3.1.0
+info:
+  title: Categories Module API
+  version: 1.0.0
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /api/categories:
+    get:
+      summary: Mengambil semua kategori (dengan pagination & search)
+      tags:
+        - Categories
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: search
+          schema:
+            type: string
+            description: Pencarian berdasarkan nama
+      responses:
+        '200':
+          description: Berhasil mengambil data kategori
+    post:
+      summary: Membuat kategori baru (Hanya Admin)
+      tags:
+        - Categories
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Kategori berhasil dibuat
+
+  /api/categories/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Mengambil detail kategori berdasarkan ID
+      tags:
+        - Categories
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mengambil detail kategori
+    put:
+      summary: Mengubah data kategori (Hanya Admin)
+      tags:
+        - Categories
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: Kategori berhasil diubah
+    delete:
+      summary: Menghapus kategori (Hanya Admin)
+      tags:
+        - Categories
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Kategori berhasil dihapus
+        '400':
+          description: Gagal dihapus karena masih ada produk yang terkait

@@ -73,7 +73,7 @@ paths:
             type: string
             format: date
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil daftar log aktivitas
           content:
             application/json:
@@ -161,7 +161,7 @@ paths:
                   example: secret123
                   description: Password minimal 6 karakter
       responses:
-        '201':
+        "201":
           description: Berhasil mendaftar
           content:
             application/json:
@@ -207,7 +207,7 @@ paths:
                   type: string
                   example: secret123
       responses:
-        '200':
+        "200":
           description: Login berhasil
           content:
             application/json:
@@ -229,7 +229,7 @@ paths:
                       refreshToken:
                         type: string
                         example: eyJhbGciOiJIUzI1NiIsInR...
-        '401':
+        "401":
           description: Kredensial tidak valid (Email/Password salah)
   /api/auth/me:
     servers: []
@@ -240,7 +240,7 @@ paths:
       security:
         - Modul_Auth_WMS_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data user
           content:
             application/json:
@@ -279,8 +279,8 @@ paths:
                       createdAt:
                         type: string
                         format: date-time
-                        example: '2026-08-23T12:00:00Z'
-        '401':
+                        example: 2026-08-23T12:00:00Z
+        "401":
           description: Token tidak ada atau tidak valid (Unauthorized)
   /api/categories:
     servers: []
@@ -307,7 +307,7 @@ paths:
             type: string
             description: Pencarian berdasarkan nama
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data kategori
     post:
       summary: Membuat kategori baru (Hanya Admin)
@@ -330,7 +330,7 @@ paths:
                 description:
                   type: string
       responses:
-        '201':
+        "201":
           description: Kategori berhasil dibuat
   /api/categories/{id}:
     servers: []
@@ -348,7 +348,7 @@ paths:
       security:
         - Categories_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil detail kategori
     put:
       summary: Mengubah data kategori (Hanya Admin)
@@ -370,7 +370,7 @@ paths:
                 isActive:
                   type: boolean
       responses:
-        '200':
+        "200":
           description: Kategori berhasil diubah
     delete:
       summary: Menghapus kategori (Hanya Admin)
@@ -379,9 +379,9 @@ paths:
       security:
         - Categories_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Kategori berhasil dihapus
-        '400':
+        "400":
           description: Gagal dihapus karena masih ada produk yang terkait
   /api/dashboard/stats:
     servers: []
@@ -403,7 +403,7 @@ paths:
             default: week
           description: Periode filter data
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data statistik
           content:
             application/json:
@@ -486,7 +486,7 @@ paths:
             default: 10
             maximum: 50
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil daftar pergerakan terbaru
           content:
             application/json:
@@ -549,9 +549,7 @@ paths:
                       totalPages:
                         type: integer
   /example:
-    servers:
-      - url: http://localhost:3000/api
-        description: Local development
+    servers: []
     get:
       summary: Get all examples
       description: Retrieve paginated examples with search, filter, and sort
@@ -598,12 +596,12 @@ paths:
           schema:
             type: boolean
       responses:
-        '200':
+        "200":
           description: Examples retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ApiPaginatedResponse'
+                $ref: "#/components/schemas/Example_API_ApiPaginatedResponse"
     post:
       summary: Create a new example
       tags:
@@ -613,34 +611,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Example_API_CreateExampleRequest'
+              $ref: "#/components/schemas/Example_API_CreateExampleRequest"
       responses:
-        '201':
+        "201":
           description: Example created successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - $ref: "#/components/schemas/Example_API_ApiResponse"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Example_API_Example'
-        '409':
+                        $ref: "#/components/schemas/Example_API_Example"
+        "409":
           description: Example name already exists
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
   /example/bulk:
-    servers:
-      - url: http://localhost:3000/api
-        description: Local development
+    servers: []
     post:
       summary: Bulk create examples
-      description: >-
-        Create multiple examples at once. Each item is processed individually —
-        successful ones return in `data`, failures in `failed`.
+      description: Create multiple examples at once. Each item is processed
+        individually — successful ones return in `data`, failures in `failed`.
       tags:
         - Example
       requestBody:
@@ -648,9 +643,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Example_API_BulkCreateRequest'
+              $ref: "#/components/schemas/Example_API_BulkCreateRequest"
       responses:
-        '201':
+        "201":
           description: Bulk create completed (partial success possible)
           content:
             application/json:
@@ -664,15 +659,13 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Example_API_Example'
+                      $ref: "#/components/schemas/Example_API_Example"
                   failed:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Example_API_BulkCreateFailedItem'
+                      $ref: "#/components/schemas/Example_API_BulkCreateFailedItem"
   /example/with-items:
-    servers:
-      - url: http://localhost:3000/api
-        description: Local development
+    servers: []
     post:
       summary: Create example with nested items
       tags:
@@ -682,36 +675,33 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Example_API_CreateWithItemsRequest'
+              $ref: "#/components/schemas/Example_API_CreateWithItemsRequest"
       responses:
-        '201':
+        "201":
           description: Example with items created successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - $ref: "#/components/schemas/Example_API_ApiResponse"
                   - type: object
                     properties:
                       data:
-                        $ref: >-
-                          #/components/schemas/Example_API_CreateWithItemsResponse
-        '400':
+                        $ref: "#/components/schemas/Example_API_CreateWithItemsResponse"
+        "400":
           description: Duplicate product names in request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
-        '409':
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
+        "409":
           description: Example name already exists
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
   /example/{id}:
-    servers:
-      - url: http://localhost:3000/api
-        description: Local development
+    servers: []
     get:
       summary: Get example by ID
       tags:
@@ -725,23 +715,23 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Example retrieved successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - $ref: "#/components/schemas/Example_API_ApiResponse"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Example_API_ExampleWithItems'
-        '404':
+                        $ref: "#/components/schemas/Example_API_ExampleWithItems"
+        "404":
           description: Example not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
     put:
       summary: Full update an example
       tags:
@@ -759,31 +749,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Example_API_UpdateExampleRequest'
+              $ref: "#/components/schemas/Example_API_UpdateExampleRequest"
       responses:
-        '200':
+        "200":
           description: Example updated successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - $ref: "#/components/schemas/Example_API_ApiResponse"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Example_API_Example'
-        '404':
+                        $ref: "#/components/schemas/Example_API_Example"
+        "404":
           description: Example not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
-        '409':
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
+        "409":
           description: Name conflicts with another record
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
     patch:
       summary: Partial update an example
       tags:
@@ -801,37 +791,37 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Example_API_PartialUpdateExampleRequest'
+              $ref: "#/components/schemas/Example_API_PartialUpdateExampleRequest"
       responses:
-        '200':
+        "200":
           description: Example partially updated successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - $ref: "#/components/schemas/Example_API_ApiResponse"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Example_API_Example'
-        '400':
+                        $ref: "#/components/schemas/Example_API_Example"
+        "400":
           description: No fields provided for update
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
-        '404':
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
+        "404":
           description: Example not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
-        '409':
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
+        "409":
           description: Name conflicts with another record
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
     delete:
       summary: Delete an example
       tags:
@@ -845,23 +835,23 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Example deleted successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - $ref: "#/components/schemas/Example_API_ApiResponse"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Example_API_Example'
-        '404':
+                        $ref: "#/components/schemas/Example_API_Example"
+        "404":
           description: Example not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example_API_ErrorResponse'
+                $ref: "#/components/schemas/Example_API_ErrorResponse"
   /api/locations:
     servers: []
     get:
@@ -880,7 +870,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data lokasi
     post:
       summary: Membuat lokasi baru (Hanya Admin)
@@ -904,7 +894,7 @@ paths:
                   type: string
                   maxLength: 10
       responses:
-        '201':
+        "201":
           description: Lokasi berhasil dibuat
   /api/locations/{id}:
     servers: []
@@ -922,7 +912,7 @@ paths:
       security:
         - Locations_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil lokasi
     put:
       summary: Mengubah lokasi (Hanya Admin)
@@ -944,7 +934,7 @@ paths:
                 isActive:
                   type: boolean
       responses:
-        '200':
+        "200":
           description: Lokasi berhasil diubah
     delete:
       summary: Menghapus lokasi (Hanya Admin)
@@ -953,7 +943,7 @@ paths:
       security:
         - Locations_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lokasi berhasil dihapus
   /api/products:
     servers: []
@@ -983,7 +973,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data produk
     post:
       summary: Membuat produk baru (Hanya Admin)
@@ -1022,7 +1012,7 @@ paths:
                   type: string
                   format: uuid
       responses:
-        '201':
+        "201":
           description: Produk berhasil dibuat
   /api/products/{id}:
     servers: []
@@ -1040,7 +1030,7 @@ paths:
       security:
         - Products_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Detail produk berhasil diambil
     put:
       summary: Mengubah produk (Hanya Admin)
@@ -1073,7 +1063,7 @@ paths:
                   type: string
                   format: uuid
       responses:
-        '200':
+        "200":
           description: Produk berhasil diubah
     delete:
       summary: Menghapus produk (Hanya Admin)
@@ -1082,7 +1072,7 @@ paths:
       security:
         - Products_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Produk berhasil dihapus
   /api/products/{id}/stock:
     servers: []
@@ -1100,7 +1090,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil info stok
           content:
             application/json:
@@ -1147,7 +1137,7 @@ paths:
             format: date
           description: Format YYYY-MM-DD. Jika kosong, default adalah hari ini.
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data summary
           content:
             application/json:
@@ -1210,7 +1200,7 @@ paths:
             default: 10
             maximum: 100
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil daftar produk stok rendah
           content:
             application/json:
@@ -1273,7 +1263,7 @@ paths:
                   type: string
                   description: Catatan opsional
       responses:
-        '201':
+        "201":
           description: Berhasil mencatat inbound dan stok bertambah
   /api/movements/outbound:
     servers: []
@@ -1302,9 +1292,9 @@ paths:
                 notes:
                   type: string
       responses:
-        '201':
+        "201":
           description: Berhasil mencatat outbound dan stok berkurang
-        '400':
+        "400":
           description: Gagal karena stok tidak mencukupi
   /api/movements/history:
     servers: []
@@ -1348,7 +1338,7 @@ paths:
             type: string
             format: date
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil riwayat pergerakan stok
 components:
   securitySchemes:
@@ -1409,9 +1399,9 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Example_API_ExampleWithItems'
+            $ref: "#/components/schemas/Example_API_ExampleWithItems"
         pagination:
-          $ref: '#/components/schemas/Example_API_PaginationMeta'
+          $ref: "#/components/schemas/Example_API_PaginationMeta"
       required:
         - success
         - message
@@ -1489,14 +1479,14 @@ components:
         - updatedAt
     Example_API_ExampleWithItems:
       allOf:
-        - $ref: '#/components/schemas/Example_API_Example'
+        - $ref: "#/components/schemas/Example_API_Example"
         - type: object
           properties:
             items:
               type: array
               description: Related items
               items:
-                $ref: '#/components/schemas/Example_API_ExampleItem'
+                $ref: "#/components/schemas/Example_API_ExampleItem"
           required:
             - items
     Example_API_ExampleItem:
@@ -1653,7 +1643,7 @@ components:
           maxItems: 20
           description: Array of items (1-20 items)
           items:
-            $ref: '#/components/schemas/Example_API_ItemInput'
+            $ref: "#/components/schemas/Example_API_ItemInput"
     Example_API_CreateWithItemsResponse:
       type: object
       properties:
@@ -1671,7 +1661,7 @@ components:
           type: array
           description: Created items
           items:
-            $ref: '#/components/schemas/Example_API_ExampleItem'
+            $ref: "#/components/schemas/Example_API_ExampleItem"
         totalItems:
           type: integer
           description: Sum of all item quantities
@@ -1685,3 +1675,6 @@ components:
         - items
         - totalItems
         - totalValue
+servers:
+  - url: http://localhost:3000/api
+    description: Local development

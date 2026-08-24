@@ -3,10 +3,7 @@ info:
   title: Example API
   version: 1.0.0
   description: Example CRUD module — full CRUD with bulk operations and nested items
-servers:
-  - url: http://localhost:3000/api
-    description: Local development
-
+# servers di-inject otomatis oleh scripts/bundle-docs.ts dari env PORT
 paths:
   /example:
     get:

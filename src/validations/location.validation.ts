@@ -6,9 +6,7 @@ export const CreateLocationSchema = z.object({
       .string({ message: 'Kode lokasi wajib diisi' })
       .min(1, 'Kode lokasi wajib diisi')
       .max(10, 'Kode lokasi maksimal 10 karakter'),
-    name: z
-      .string({ message: 'Nama lokasi wajib diisi' })
-      .min(3, 'Nama lokasi minimal 3 karakter'),
+    name: z.string({ message: 'Nama lokasi wajib diisi' }).min(3, 'Nama lokasi minimal 3 karakter'),
   }),
 });
 

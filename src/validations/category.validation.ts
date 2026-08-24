@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 export const CreateCategorySchema = z.object({
   body: z.object({
-    name: z.string({ message: 'Nama kategori wajib diisi' }).min(3, 'Nama kategori minimal 3 karakter'),
+    name: z
+      .string({ message: 'Nama kategori wajib diisi' })
+      .min(3, 'Nama kategori minimal 3 karakter'),
     description: z.string().optional(),
   }),
 });

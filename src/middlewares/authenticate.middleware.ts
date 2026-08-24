@@ -7,11 +7,7 @@ export interface AuthRequest extends Request {
   user?: TokenPayload;
 }
 
-export const authenticate = (
-  req: AuthRequest,
-  _res: Response,
-  next: NextFunction
-): void => {
+export const authenticate = (req: AuthRequest, _res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -28,7 +24,7 @@ export const authenticate = (
     const decoded = verifyAccessToken(token);
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch {
     throw new AppError('Token tidak valid atau sudah kadaluwarsa', 401);
   }
 };

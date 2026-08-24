@@ -70,7 +70,7 @@ export const getAllProducts = catchAsync(async (req: Request, res: Response) => 
 
   const skip = (page - 1) * limit;
 
-  // Filter gabungan
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const whereClause: any = {};
 
   if (search) {
@@ -222,7 +222,7 @@ export const deleteProduct = catchAsync(async (req: Request, res: Response) => {
   if (product._count && product._count.stockMovements > 0) {
     throw new AppError(
       'Produk tidak dapat dihapus karena memiliki riwayat pergerakan stok (Stock Movement)',
-      400
+      400,
     );
   }
 

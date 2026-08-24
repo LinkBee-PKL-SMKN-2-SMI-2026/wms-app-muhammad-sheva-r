@@ -4,7 +4,10 @@ import { z } from 'zod';
 export const CreateInboundSchema = z.object({
   body: z.object({
     productId: z.string().uuid({ message: 'Product ID harus berupa UUID yang valid' }),
-    quantity: z.number().int().positive({ message: 'Quantity harus berupa angka bulat dan lebih dari 0' }),
+    quantity: z
+      .number()
+      .int()
+      .positive({ message: 'Quantity harus berupa angka bulat dan lebih dari 0' }),
     notes: z.string().optional(),
   }),
 });
@@ -13,7 +16,10 @@ export const CreateInboundSchema = z.object({
 export const CreateOutboundSchema = z.object({
   body: z.object({
     productId: z.string().uuid({ message: 'Product ID harus berupa UUID yang valid' }),
-    quantity: z.number().int().positive({ message: 'Quantity harus berupa angka bulat dan lebih dari 0' }),
+    quantity: z
+      .number()
+      .int()
+      .positive({ message: 'Quantity harus berupa angka bulat dan lebih dari 0' }),
     notes: z.string().optional(),
   }),
 });

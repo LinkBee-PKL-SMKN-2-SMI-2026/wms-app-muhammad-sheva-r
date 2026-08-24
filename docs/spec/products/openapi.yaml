@@ -1,4 +1,84 @@
-/api/products/{id}/stock:
+openapi: 3.1.0
+info:
+  title: Products Module API
+  version: 1.0.0
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /api/products:
+    get:
+      summary: Mengambil semua produk dengan filter
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: locationId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Berhasil mengambil data produk
+    post:
+      summary: Membuat produk baru (Hanya Admin)
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - sku
+                - categoryId
+                - locationId
+              properties:
+                name:
+                  type: string
+                sku:
+                  type: string
+                description:
+                  type: string
+                stock:
+                  type: integer
+                  default: 0
+                minimumStock:
+                  type: integer
+                  default: 10
+                categoryId:
+                  type: string
+                  format: uuid
+                locationId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Produk berhasil dibuat
+
+  /api/products/{id}:
     parameters:
       - in: path
         name: id
@@ -7,11 +87,71 @@
           type: string
           format: uuid
     get:
+      summary: Mengambil detail produk
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Detail produk berhasil diambil
+    put:
+      summary: Mengubah produk (Hanya Admin)
+      description: Stock tidak bisa diupdate dari sini, melainkan melalui Stock Movements.
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                sku:
+                  type: string
+                description:
+                  type: string
+                minimumStock:
+                  type: integer
+                isActive:
+                  type: boolean
+                categoryId:
+                  type: string
+                  format: uuid
+                locationId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Produk berhasil diubah
+    delete:
+      summary: Menghapus produk (Hanya Admin)
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Produk berhasil dihapus
+
+  /api/products/{id}/stock:
+    get:
       summary: Mengambil informasi spesifik stok produk
       tags:
         - Products
       security:
         - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: Berhasil mengambil info stok

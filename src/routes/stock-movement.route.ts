@@ -15,27 +15,12 @@ import {
 const router = Router();
 
 // 1. Endpoint Barang Masuk (INBOUND)
-router.post(
-  '/inbound',
-  authenticate,
-  validate(CreateInboundSchema),
-  createInbound
-);
+router.post('/inbound', authenticate, validate(CreateInboundSchema), createInbound);
 
 // 2. Endpoint Barang Keluar (OUTBOUND)
-router.post(
-  '/outbound',
-  authenticate,
-  validate(CreateOutboundSchema),
-  createOutbound
-);
+router.post('/outbound', authenticate, validate(CreateOutboundSchema), createOutbound);
 
 // 3. Endpoint Riwayat Pergerakan Stok (HISTORY)
-router.get(
-  '/history',
-  authenticate,
-  validate(GetMovementHistorySchema),
-  getMovementHistory
-);
+router.get('/history', authenticate, validate(GetMovementHistorySchema), getMovementHistory);
 
 export default router;

@@ -5,8 +5,8 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import { catchAsync } from '../utils/catchAsync';
 import { logger } from '../utils/logger';
-
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 export const register = catchAsync(async (req: Request, res: Response) => {

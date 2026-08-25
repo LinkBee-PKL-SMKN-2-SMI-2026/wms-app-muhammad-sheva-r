@@ -11,8 +11,6 @@ tags:
     x-displayName: Categories
   - name: Dashboard
     x-displayName: Dashboard
-  - name: Example
-    x-displayName: Example
   - name: Locations
     x-displayName: Locations
   - name: Products
@@ -22,7 +20,7 @@ tags:
   - name: Stock Movements
     x-displayName: Stock Movements
 paths:
-  /api/activity-logs:
+  /activity-logs:
     servers: []
     get:
       summary: Mengambil daftar riwayat aktivitas sistem (Audit Trail)
@@ -128,7 +126,7 @@ paths:
                         type: integer
                       totalPages:
                         type: integer
-  /api/auth/register:
+  /auth/register:
     servers: []
     post:
       summary: Mendaftarkan pengguna baru
@@ -183,7 +181,7 @@ paths:
                       refreshToken:
                         type: string
                         example: eyJhbGciOiJIUzI1NiIsInR...
-  /api/auth/login:
+  /auth/login:
     servers: []
     post:
       summary: Login pengguna yang sudah terdaftar
@@ -231,7 +229,7 @@ paths:
                         example: eyJhbGciOiJIUzI1NiIsInR...
         "401":
           description: Kredensial tidak valid (Email/Password salah)
-  /api/auth/me:
+  /auth/me:
     servers: []
     get:
       summary: Mengambil data pengguna yang sedang login
@@ -282,7 +280,7 @@ paths:
                         example: 2026-08-23T12:00:00Z
         "401":
           description: Token tidak ada atau tidak valid (Unauthorized)
-  /api/categories:
+  /categories:
     servers: []
     get:
       summary: Mengambil semua kategori (dengan pagination & search)
@@ -332,7 +330,7 @@ paths:
       responses:
         "201":
           description: Kategori berhasil dibuat
-  /api/categories/{id}:
+  /categories/{id}:
     servers: []
     parameters:
       - in: path
@@ -383,7 +381,7 @@ paths:
           description: Kategori berhasil dihapus
         "400":
           description: Gagal dihapus karena masih ada produk yang terkait
-  /api/dashboard/stats:
+  /dashboard/stats:
     servers: []
     get:
       summary: Mengambil statistik dashboard
@@ -464,7 +462,7 @@ paths:
                               type: integer
                             totalStock:
                               type: integer
-  /api/dashboard/recent-movements:
+  /dashboard/recent-movements:
     servers: []
     get:
       summary: Mengambil pergerakan stok terbaru
@@ -548,311 +546,7 @@ paths:
                         type: integer
                       totalPages:
                         type: integer
-  /example:
-    servers: []
-    get:
-      summary: Get all examples
-      description: Retrieve paginated examples with search, filter, and sort
-      tags:
-        - Example
-      parameters:
-        - name: page
-          in: query
-          required: false
-          description: Page number (default 1)
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-        - name: limit
-          in: query
-          required: false
-          description: Items per page (default 10, max 100)
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 10
-        - name: search
-          in: query
-          required: false
-          description: Search by name (case-insensitive)
-          schema:
-            type: string
-        - name: sort
-          in: query
-          required: false
-          description: Sort by name
-          schema:
-            type: string
-            enum:
-              - asc
-              - desc
-            default: asc
-        - name: isActive
-          in: query
-          required: false
-          description: Filter by active status
-          schema:
-            type: boolean
-      responses:
-        "200":
-          description: Examples retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ApiPaginatedResponse"
-    post:
-      summary: Create a new example
-      tags:
-        - Example
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Example_API_CreateExampleRequest"
-      responses:
-        "201":
-          description: Example created successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/Example_API_ApiResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Example_API_Example"
-        "409":
-          description: Example name already exists
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-  /example/bulk:
-    servers: []
-    post:
-      summary: Bulk create examples
-      description: Create multiple examples at once. Each item is processed
-        individually — successful ones return in `data`, failures in `failed`.
-      tags:
-        - Example
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Example_API_BulkCreateRequest"
-      responses:
-        "201":
-          description: Bulk create completed (partial success possible)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Example_API_Example"
-                  failed:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Example_API_BulkCreateFailedItem"
-  /example/with-items:
-    servers: []
-    post:
-      summary: Create example with nested items
-      tags:
-        - Example
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Example_API_CreateWithItemsRequest"
-      responses:
-        "201":
-          description: Example with items created successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/Example_API_ApiResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Example_API_CreateWithItemsResponse"
-        "400":
-          description: Duplicate product names in request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-        "409":
-          description: Example name already exists
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-  /example/{id}:
-    servers: []
-    get:
-      summary: Get example by ID
-      tags:
-        - Example
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Example ID (UUID)
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Example retrieved successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/Example_API_ApiResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Example_API_ExampleWithItems"
-        "404":
-          description: Example not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-    put:
-      summary: Full update an example
-      tags:
-        - Example
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Example ID (UUID)
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Example_API_UpdateExampleRequest"
-      responses:
-        "200":
-          description: Example updated successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/Example_API_ApiResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Example_API_Example"
-        "404":
-          description: Example not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-        "409":
-          description: Name conflicts with another record
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-    patch:
-      summary: Partial update an example
-      tags:
-        - Example
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Example ID (UUID)
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Example_API_PartialUpdateExampleRequest"
-      responses:
-        "200":
-          description: Example partially updated successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/Example_API_ApiResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Example_API_Example"
-        "400":
-          description: No fields provided for update
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-        "404":
-          description: Example not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-        "409":
-          description: Name conflicts with another record
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-    delete:
-      summary: Delete an example
-      tags:
-        - Example
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Example ID (UUID)
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Example deleted successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/Example_API_ApiResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Example_API_Example"
-        "404":
-          description: Example not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example_API_ErrorResponse"
-  /api/locations:
+  /locations:
     servers: []
     get:
       summary: Mengambil semua lokasi
@@ -896,7 +590,7 @@ paths:
       responses:
         "201":
           description: Lokasi berhasil dibuat
-  /api/locations/{id}:
+  /locations/{id}:
     servers: []
     parameters:
       - in: path
@@ -945,7 +639,7 @@ paths:
       responses:
         "200":
           description: Lokasi berhasil dihapus
-  /api/products:
+  /products:
     servers: []
     get:
       summary: Mengambil semua produk dengan filter
@@ -1014,7 +708,7 @@ paths:
       responses:
         "201":
           description: Produk berhasil dibuat
-  /api/products/{id}:
+  /products/{id}:
     servers: []
     parameters:
       - in: path
@@ -1074,7 +768,7 @@ paths:
       responses:
         "200":
           description: Produk berhasil dihapus
-  /api/products/{id}/stock:
+  /products/{id}/stock:
     servers: []
     get:
       summary: Mengambil informasi spesifik stok produk
@@ -1121,7 +815,7 @@ paths:
                           - safe
                           - low
                           - out
-  /api/reports/summary:
+  /reports/summary:
     servers: []
     get:
       summary: Mengambil rekapitulasi data gudang (Summary)
@@ -1171,7 +865,7 @@ paths:
                       totalUsers:
                         type: integer
                         example: 5
-  /api/reports/low-stock:
+  /reports/low-stock:
     servers: []
     get:
       summary: Mengambil daftar produk dengan stok di bawah threshold
@@ -1233,7 +927,7 @@ paths:
                           type: string
                         locationName:
                           type: string
-  /api/movements/inbound:
+  /movements/inbound:
     servers: []
     post:
       summary: Mencatat barang masuk (Inbound)
@@ -1265,7 +959,7 @@ paths:
       responses:
         "201":
           description: Berhasil mencatat inbound dan stok bertambah
-  /api/movements/outbound:
+  /movements/outbound:
     servers: []
     post:
       summary: Mencatat barang keluar (Outbound)
@@ -1296,7 +990,7 @@ paths:
           description: Berhasil mencatat outbound dan stok berkurang
         "400":
           description: Gagal karena stok tidak mencukupi
-  /api/movements/history:
+  /movements/history:
     servers: []
     get:
       summary: Mengambil riwayat pergerakan stok
@@ -1374,307 +1068,6 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-  schemas:
-    Example_API_ApiResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: Indicates whether the request was successful
-        message:
-          type: string
-          description: Response message
-        data:
-          description: Response payload
-      required:
-        - success
-        - message
-    Example_API_ApiPaginatedResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/Example_API_ExampleWithItems"
-        pagination:
-          $ref: "#/components/schemas/Example_API_PaginationMeta"
-      required:
-        - success
-        - message
-        - data
-        - pagination
-    Example_API_PaginationMeta:
-      type: object
-      properties:
-        page:
-          type: integer
-          description: Current page number
-        limit:
-          type: integer
-          description: Items per page
-        total:
-          type: integer
-          description: Total number of items
-        totalPages:
-          type: integer
-          description: Total number of pages
-      required:
-        - page
-        - limit
-        - total
-        - totalPages
-    Example_API_ErrorResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-        message:
-          type: string
-          description: Error message
-        errors:
-          type: object
-          description: Field-level validation errors
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-        - success
-        - message
-    Example_API_Example:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Example ID
-        name:
-          type: string
-          description: Example name
-        description:
-          type: string
-          nullable: true
-          description: Example description
-        isActive:
-          type: boolean
-          description: Active status
-        createdAt:
-          type: string
-          format: date-time
-          description: Creation timestamp
-        updatedAt:
-          type: string
-          format: date-time
-          description: Last update timestamp
-      required:
-        - id
-        - name
-        - isActive
-        - createdAt
-        - updatedAt
-    Example_API_ExampleWithItems:
-      allOf:
-        - $ref: "#/components/schemas/Example_API_Example"
-        - type: object
-          properties:
-            items:
-              type: array
-              description: Related items
-              items:
-                $ref: "#/components/schemas/Example_API_ExampleItem"
-          required:
-            - items
-    Example_API_ExampleItem:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Item ID
-        productName:
-          type: string
-          description: Product name
-        quantity:
-          type: integer
-          description: Quantity
-        price:
-          type: integer
-          description: Price in smallest currency unit (e.g. cents)
-        exampleId:
-          type: string
-          format: uuid
-          description: Parent example ID
-      required:
-        - id
-        - productName
-        - quantity
-        - price
-        - exampleId
-    Example_API_CreateExampleRequest:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-          minLength: 3
-          description: Example name (min 3 characters)
-        description:
-          type: string
-          description: Example description
-        isActive:
-          type: boolean
-          default: true
-          description: Active status (defaults to true)
-    Example_API_UpdateExampleRequest:
-      type: object
-      required:
-        - name
-        - isActive
-      properties:
-        name:
-          type: string
-          minLength: 3
-          description: Example name (min 3 characters)
-        description:
-          type: string
-          description: Example description
-        isActive:
-          type: boolean
-          description: Active status
-    Example_API_PartialUpdateExampleRequest:
-      type: object
-      minProperties: 1
-      properties:
-        name:
-          type: string
-          minLength: 3
-          description: Example name (min 3 characters)
-        description:
-          type: string
-          description: Example description
-        isActive:
-          type: boolean
-          description: Active status
-    Example_API_BulkCreateRequest:
-      type: object
-      required:
-        - items
-      properties:
-        items:
-          type: array
-          minItems: 1
-          maxItems: 50
-          description: Array of examples to create (1-50 items)
-          items:
-            type: object
-            required:
-              - name
-            properties:
-              name:
-                type: string
-                minLength: 3
-                description: Example name (min 3 characters)
-              description:
-                type: string
-                description: Example description
-              isActive:
-                type: boolean
-                default: true
-                description: Active status
-    Example_API_BulkCreateFailedItem:
-      type: object
-      properties:
-        index:
-          type: integer
-          description: Index of the failed item in the request array
-        name:
-          type: string
-          description: Name of the failed item
-        reason:
-          type: string
-          description: Failure reason
-      required:
-        - index
-        - name
-        - reason
-    Example_API_ItemInput:
-      type: object
-      required:
-        - productName
-        - quantity
-        - price
-      properties:
-        productName:
-          type: string
-          minLength: 1
-          description: Product name
-        quantity:
-          type: integer
-          exclusiveMinimum: 0
-          description: Quantity (must be > 0)
-        price:
-          type: integer
-          exclusiveMinimum: 0
-          description: Price in smallest currency unit (must be > 0)
-    Example_API_CreateWithItemsRequest:
-      type: object
-      required:
-        - name
-        - category
-        - items
-      properties:
-        name:
-          type: string
-          minLength: 3
-          description: Example name (min 3 characters)
-        category:
-          type: string
-          minLength: 1
-          description: Category name
-        items:
-          type: array
-          minItems: 1
-          maxItems: 20
-          description: Array of items (1-20 items)
-          items:
-            $ref: "#/components/schemas/Example_API_ItemInput"
-    Example_API_CreateWithItemsResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Example ID
-        name:
-          type: string
-          description: Example name
-        category:
-          type: string
-          description: Category name
-        items:
-          type: array
-          description: Created items
-          items:
-            $ref: "#/components/schemas/Example_API_ExampleItem"
-        totalItems:
-          type: integer
-          description: Sum of all item quantities
-        totalValue:
-          type: integer
-          description: Sum of all item price * quantity
-      required:
-        - id
-        - name
-        - category
-        - items
-        - totalItems
-        - totalValue
 servers:
   - url: http://localhost:3000/api
     description: Local development

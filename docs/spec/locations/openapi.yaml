@@ -9,7 +9,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
-  /api/locations:
+  /locations:
     get:
       summary: Mengambil semua lokasi
       tags:
@@ -53,7 +53,7 @@ paths:
         '201':
           description: Lokasi berhasil dibuat
 
-  /api/locations/{id}:
+  /locations/{id}:
     parameters:
       - in: path
         name: id

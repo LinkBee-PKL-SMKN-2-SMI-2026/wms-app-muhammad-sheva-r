@@ -10,7 +10,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
-  /api/auth/register:
+  /auth/register:
     post:
       summary: Mendaftarkan pengguna baru
       tags:
@@ -65,7 +65,7 @@ paths:
                         type: string
                         example: "eyJhbGciOiJIUzI1NiIsInR..."
 
-  /api/auth/login:
+  /auth/login:
     post:
       summary: Login pengguna yang sudah terdaftar
       tags:
@@ -113,7 +113,7 @@ paths:
         '401':
           description: Kredensial tidak valid (Email/Password salah)
 
-  /api/auth/me:
+  /auth/me:
     get:
       summary: Mengambil data pengguna yang sedang login
       tags:

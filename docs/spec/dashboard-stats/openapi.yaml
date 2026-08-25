@@ -9,7 +9,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
-  /api/dashboard/stats:
+  /dashboard/stats:
     get:
       summary: Mengambil statistik dashboard
       tags:
@@ -87,7 +87,7 @@ paths:
                             totalStock:
                               type: integer
 
-  /api/dashboard/recent-movements:
+  /dashboard/recent-movements:
     get:
       summary: Mengambil pergerakan stok terbaru
       tags:

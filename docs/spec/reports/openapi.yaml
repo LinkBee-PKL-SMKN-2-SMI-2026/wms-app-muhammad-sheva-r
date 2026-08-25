@@ -9,7 +9,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
-  /api/reports/summary:
+  /reports/summary:
     get:
       summary: Mengambil rekapitulasi data gudang (Summary)
       tags:
@@ -59,7 +59,7 @@ paths:
                         type: integer
                         example: 5
 
-  /api/reports/low-stock:
+  /reports/low-stock:
     get:
       summary: Mengambil daftar produk dengan stok di bawah threshold
       tags:

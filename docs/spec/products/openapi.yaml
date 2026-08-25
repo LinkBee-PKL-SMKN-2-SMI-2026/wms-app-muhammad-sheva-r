@@ -9,7 +9,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
-  /api/products:
+  /products:
     get:
       summary: Mengambil semua produk dengan filter
       tags:
@@ -78,7 +78,7 @@ paths:
         '201':
           description: Produk berhasil dibuat
 
-  /api/products/{id}:
+  /products/{id}:
     parameters:
       - in: path
         name: id
@@ -138,7 +138,7 @@ paths:
         '200':
           description: Produk berhasil dihapus
 
-  /api/products/{id}/stock:
+  /products/{id}/stock:
     get:
       summary: Mengambil informasi spesifik stok produk
       tags:

@@ -9,7 +9,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
-  /api/activity-logs:
+  /activity-logs:
     get:
       summary: Mengambil daftar riwayat aktivitas sistem (Audit Trail)
       tags:

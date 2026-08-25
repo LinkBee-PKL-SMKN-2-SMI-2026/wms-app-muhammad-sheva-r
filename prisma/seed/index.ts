@@ -11,19 +11,11 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🌱 Starting seed database...');
 
-  // 1. Clean existing data
-  await prisma.stock_Movements.deleteMany();
-  await prisma.activity_Logs.deleteMany();
-  await prisma.products.deleteMany();
-  await prisma.categories.deleteMany();
-  await prisma.locations.deleteMany();
-  await prisma.users.deleteMany();
-
   // 2. Hash password admin
   const hashedPassword = await bcrypt.hash('admin123', 10);
 
   // 3. Create Admin User
-  const adminUser = await prisma.users.create({
+  const adminUser = await prisma.user.create({
     data: {
       name: 'Super Admin',
       email: 'admin@wms.com',
@@ -36,33 +28,33 @@ async function main() {
   console.log('✅ Admin user created:', adminUser.email);
 
   // 4. Create Categories
-  const categoryElektronik = await prisma.categories.create({
+  const categoryElektronik = await prisma.category.create({
     data: { name: 'Elektronik', description: 'Barang-barang elektronik dan periferal' },
   });
-  const categoryFurniture = await prisma.categories.create({
+  const categoryFurniture = await prisma.category.create({
     data: { name: 'Furniture', description: 'Perabotan kantor dan meja kursi' },
   });
-  const categoryATK = await prisma.categories.create({
+  const categoryATK = await prisma.category.create({
     data: { name: 'ATK', description: 'Alat tulis kantor dan kertas' },
   });
 
   console.log('✅ 3 Categories created');
 
   // 5. Create Locations
-  const locationA1 = await prisma.locations.create({
+  const locationA1 = await prisma.location.create({
     data: { name: 'Rak A1', code: 'RAK-A1' },
   });
-  const locationA2 = await prisma.locations.create({
+  const locationA2 = await prisma.location.create({
     data: { name: 'Rak A2', code: 'RAK-A2' },
   });
-  const locationB1 = await prisma.locations.create({
+  const locationB1 = await prisma.location.create({
     data: { name: 'Gudang B1', code: 'GDG-B1' },
   });
 
   console.log('✅ 3 Locations created');
 
   // 6. Create 5 Products
-  await prisma.products.createMany({
+  await prisma.product.createMany({
     data: [
       {
         name: 'Laptop Gaming ACER',

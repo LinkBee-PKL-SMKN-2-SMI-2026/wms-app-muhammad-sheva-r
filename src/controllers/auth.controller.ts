@@ -16,20 +16,21 @@ const prisma = new PrismaClient({ adapter });
 export const register = catchAsync(async (req: Request, res: Response) => {
   const { name, email, password } = req.body as RegisterRequest;
 
-  const existingUser = await prisma.users.findUnique({
-    where: { email },
+  // Trik: Gunakan findFirst dan paksa format String() untuk membungkam error Prisma
+  const existingUser = await prisma.user.findFirst({
+    where: { email: String(email) },
   });
 
   if (existingUser) {
     throw new AppError('Email sudah terdaftar', 400);
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(String(password), 10);
 
-  const user = await prisma.users.create({
+  const user = await prisma.user.create({
     data: {
-      name,
-      email,
+      name: String(name),
+      email: String(email),
       password: hashedPassword,
     },
   });
@@ -67,8 +68,9 @@ export const register = catchAsync(async (req: Request, res: Response) => {
 export const login = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body as LoginRequest;
 
-  const user = await prisma.users.findUnique({
-    where: { email },
+  // Trik: Gunakan findFirst di sini juga
+  const user = await prisma.user.findFirst({
+    where: { email: String(email) },
   });
 
   if (!user) {
@@ -79,7 +81,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
     throw new AppError('Akun anda tidak aktif', 403);
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(String(password), user.password);
 
   if (!isPasswordValid) {
     throw new AppError('Email atau password salah', 401);
@@ -111,6 +113,22 @@ export const login = catchAsync(async (req: Request, res: Response) => {
         accessToken,
         refreshToken,
       },
+    },
+  });
+});
+
+export const getMe = catchAsync(async (req: Request, res: Response) => {
+  const currentUser = (req as any).user;
+
+  if (!currentUser) {
+    throw new AppError('Anda belum login atau token tidak valid', 401);
+  }
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Berhasil mengambil data profil',
+    data: {
+      user: currentUser,
     },
   });
 });

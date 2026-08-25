@@ -9,7 +9,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
-  /api/movements/inbound:
+  /movements/inbound:
     post:
       summary: Mencatat barang masuk (Inbound)
       tags:
@@ -41,7 +41,7 @@ paths:
         '201':
           description: Berhasil mencatat inbound dan stok bertambah
 
-  /api/movements/outbound:
+  /movements/outbound:
     post:
       summary: Mencatat barang keluar (Outbound)
       tags:
@@ -72,7 +72,7 @@ paths:
         '400':
           description: Gagal karena stok tidak mencukupi
 
-  /api/movements/history:
+  /movements/history:
     get:
       summary: Mengambil riwayat pergerakan stok
       tags:

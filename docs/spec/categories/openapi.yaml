@@ -9,7 +9,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
-  /api/categories:
+  /categories:
     get:
       summary: Mengambil semua kategori (dengan pagination & search)
       tags:
@@ -59,7 +59,7 @@ paths:
         '201':
           description: Kategori berhasil dibuat
 
-  /api/categories/{id}:
+  /categories/{id}:
     parameters:
       - in: path
         name: id

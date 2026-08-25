@@ -111,8 +111,8 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const getMe = catchAsync(async (req: Request, res: Response) => {
-  const currentUser = (req as any).user;
+export const getMe = catchAsync((req: Request, res: Response) => {
+  const currentUser = (req as Request & { user?: unknown }).user;
 
   if (!currentUser) {
     throw new AppError('Anda belum login atau token tidak valid', 401);

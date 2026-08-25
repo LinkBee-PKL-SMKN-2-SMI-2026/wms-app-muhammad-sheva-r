@@ -9,7 +9,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('🌱 Starting seed database...');
+  console.log(' Starting seed database...');
 
   // 2. Hash password admin
   const hashedPassword = await bcrypt.hash('admin123', 10);
@@ -25,7 +25,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Admin user created:', adminUser.email);
+  console.log(' Admin user created:', adminUser.email);
 
   // 4. Create Categories
   const categoryElektronik = await prisma.category.create({
@@ -38,7 +38,7 @@ async function main() {
     data: { name: 'ATK', description: 'Alat tulis kantor dan kertas' },
   });
 
-  console.log('✅ 3 Categories created');
+  console.log(' 3 Categories created');
 
   // 5. Create Locations
   const locationA1 = await prisma.location.create({
@@ -51,7 +51,7 @@ async function main() {
     data: { name: 'Gudang B1', code: 'GDG-B1' },
   });
 
-  console.log('✅ 3 Locations created');
+  console.log(' 3 Locations created');
 
   // 6. Create 5 Products
   await prisma.product.createMany({
@@ -104,13 +104,13 @@ async function main() {
     ],
   });
 
-  console.log('✅ 5 Products created');
-  console.log('🚀 Seeding completed successfully!');
+  console.log(' 5 Products created');
+  console.log(' Seeding completed successfully!');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error during seeding:', e);
+    console.error(' Error during seeding:', e);
     process.exit(1);
   })
   .finally(async () => {

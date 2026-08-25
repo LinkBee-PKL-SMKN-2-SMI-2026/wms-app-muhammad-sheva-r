@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { register, login, getMe } from '../controllers/auth.controller';
 import { validate } from '../middlewares/validate.middleware';
 // 1. Tambahkan import untuk middleware autentikasi
 import { authenticate } from '../middlewares/authenticate.middleware';

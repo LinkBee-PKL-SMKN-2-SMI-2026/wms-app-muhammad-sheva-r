@@ -1,16 +1,12 @@
 import type { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import { catchAsync } from '../utils/catchAsync';
-import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
-import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
-import type { RegisterRequest, LoginRequest } from '../models/auth.dto';
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 export const register = catchAsync(async (req: Request, res: Response) => {
@@ -35,19 +31,18 @@ export const register = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
-  const payload = {
-    id: user.id,
+  logger.info(`User registered successfully: ${user.email}`);
+
+  // 4. Generate Tokens
+  const payload: TokenPayload = {
     userId: user.id,
     email: user.email,
-    role: user.role,
   };
 
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
-  logger.info(`User registered successfully: ${user.email}`);
-
-  res.status(201).json({
+  return res.status(201).json({
     status: 'success',
     message: 'Registrasi berhasil',
     data: {
@@ -87,19 +82,18 @@ export const login = catchAsync(async (req: Request, res: Response) => {
     throw new AppError('Email atau password salah', 401);
   }
 
-  const payload = {
-    id: user.id,
+  logger.info(`User logged in successfully: ${user.email}`);
+
+  // 3. Generate Tokens
+  const payload: TokenPayload = {
     userId: user.id,
     email: user.email,
-    role: user.role,
   };
 
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
-  logger.info(`User logged in successfully: ${user.email}`);
-
-  res.status(200).json({
+  return res.status(200).json({
     status: 'success',
     message: 'Login berhasil',
     data: {

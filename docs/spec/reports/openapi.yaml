@@ -22,7 +22,7 @@ paths:
           schema:
             type: string
             format: date
-          description: "Format YYYY-MM-DD. Jika kosong, default adalah hari ini."
+          description: 'Format YYYY-MM-DD. Jika kosong, default adalah hari ini.'
       responses:
         '200':
           description: Berhasil mengambil data summary
@@ -36,7 +36,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Summary retrieved successfully"
+                    example: 'Summary retrieved successfully'
                   data:
                     type: object
                     properties:
@@ -99,7 +99,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Low stock products retrieved successfully"
+                    example: 'Low stock products retrieved successfully'
                   data:
                     type: array
                     items:

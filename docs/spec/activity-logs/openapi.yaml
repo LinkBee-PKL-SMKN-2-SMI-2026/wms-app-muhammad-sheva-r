@@ -66,7 +66,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Activity logs retrieved successfully"
+                    example: 'Activity logs retrieved successfully'
                   data:
                     type: array
                     items:

@@ -5,7 +5,7 @@ import locationRoute from './location.route';
 import productRoute from './product.route';
 import movement from './stock-movement.route';
 // 1. Tambahkan import untuk route activity log
-import activityLogRoute from './activity-log.route'; 
+import activityLogRoute from './activity-log.route';
 
 const router = Router();
 

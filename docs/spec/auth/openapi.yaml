@@ -29,18 +29,18 @@ paths:
                 name:
                   type: string
                   minLength: 3
-                  example: "Budi Santoso"
-                  description: "Nama minimal 3 karakter"
+                  example: 'Budi Santoso'
+                  description: 'Nama minimal 3 karakter'
                 email:
                   type: string
                   format: email
-                  example: "budi@wms.com"
+                  example: 'budi@wms.com'
                 password:
                   type: string
                   minLength: 6
                   format: password
-                  example: "secret123"
-                  description: "Password minimal 6 karakter"
+                  example: 'secret123'
+                  description: 'Password minimal 6 karakter'
       responses:
         '201':
           description: Berhasil mendaftar
@@ -54,16 +54,16 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "User berhasil didaftarkan"
+                    example: 'User berhasil didaftarkan'
                   data:
                     type: object
                     properties:
                       accessToken:
                         type: string
-                        example: "eyJhbGciOiJIUzI1NiIsInR..."
+                        example: 'eyJhbGciOiJIUzI1NiIsInR...'
                       refreshToken:
                         type: string
-                        example: "eyJhbGciOiJIUzI1NiIsInR..."
+                        example: 'eyJhbGciOiJIUzI1NiIsInR...'
 
   /auth/login:
     post:
@@ -83,10 +83,10 @@ paths:
                 email:
                   type: string
                   format: email
-                  example: "budi@wms.com"
+                  example: 'budi@wms.com'
                 password:
                   type: string
-                  example: "secret123"
+                  example: 'secret123'
       responses:
         '200':
           description: Login berhasil
@@ -100,16 +100,16 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Login berhasil"
+                    example: 'Login berhasil'
                   data:
                     type: object
                     properties:
                       accessToken:
                         type: string
-                        example: "eyJhbGciOiJIUzI1NiIsInR..."
+                        example: 'eyJhbGciOiJIUzI1NiIsInR...'
                       refreshToken:
                         type: string
-                        example: "eyJhbGciOiJIUzI1NiIsInR..."
+                        example: 'eyJhbGciOiJIUzI1NiIsInR...'
         '401':
           description: Kredensial tidak valid (Email/Password salah)
 
@@ -133,31 +133,31 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Data user berhasil diambil"
+                    example: 'Data user berhasil diambil'
                   data:
                     type: object
                     properties:
                       id:
                         type: string
                         format: uuid
-                        example: "123e4567-e89b-12d3-a456-426614174000"
+                        example: '123e4567-e89b-12d3-a456-426614174000'
                       name:
                         type: string
-                        example: "Budi Santoso"
+                        example: 'Budi Santoso'
                       email:
                         type: string
                         format: email
-                        example: "budi@wms.com"
+                        example: 'budi@wms.com'
                       role:
                         type: string
                         enum: [ADMIN, STAFF]
-                        example: "STAFF"
+                        example: 'STAFF'
                       isActive:
                         type: boolean
                         example: true
                       createdAt:
                         type: string
                         format: date-time
-                        example: "2026-08-23T12:00:00Z"
+                        example: '2026-08-23T12:00:00Z'
         '401':
           description: Token tidak ada atau tidak valid (Unauthorized)

@@ -20,11 +20,11 @@ Membuat satu data Example baru.
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | ✅ | Min 3 karakter |
-| `description` | string | ❌ | |
-| `isActive` | boolean | ❌ | Default: `true` |
+| Field         | Type    | Required | Description     |
+| ------------- | ------- | -------- | --------------- |
+| `name`        | string  | ✅       | Min 3 karakter  |
+| `description` | string  | ❌       |                 |
+| `isActive`    | boolean | ❌       | Default: `true` |
 
 **Response (201):**
 
@@ -53,13 +53,13 @@ Mengambil daftar Example dengan pagination, search, filter, dan sort.
 
 **Query Parameters:**
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `page` | integer | `1` | Halaman |
-| `limit` | integer | `10` | Data per halaman (max 100) |
-| `search` | string | — | Cari berdasarkan nama (case-insensitive) |
-| `sort` | `asc` / `desc` | `asc` | Urutkan berdasarkan nama |
-| `isActive` | boolean | — | Filter berdasarkan status aktif |
+| Parameter  | Type           | Default | Description                              |
+| ---------- | -------------- | ------- | ---------------------------------------- |
+| `page`     | integer        | `1`     | Halaman                                  |
+| `limit`    | integer        | `10`    | Data per halaman (max 100)               |
+| `search`   | string         | —       | Cari berdasarkan nama (case-insensitive) |
+| `sort`     | `asc` / `desc` | `asc`   | Urutkan berdasarkan nama                 |
+| `isActive` | boolean        | —       | Filter berdasarkan status aktif          |
 
 **Response (200):**
 
@@ -103,9 +103,9 @@ Mengambil satu Example berdasarkan UUID.
 
 **Path Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | UUID (string) | ID Example |
+| Parameter | Type          | Description |
+| --------- | ------------- | ----------- |
+| `id`      | UUID (string) | ID Example  |
 
 **Response (200):**
 
@@ -136,9 +136,9 @@ Mengupdate seluruh data Example. Semua field required harus dikirim.
 
 **Path Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | UUID (string) | ID Example |
+| Parameter | Type          | Description |
+| --------- | ------------- | ----------- |
+| `id`      | UUID (string) | ID Example  |
 
 **Request Body:**
 
@@ -150,11 +150,11 @@ Mengupdate seluruh data Example. Semua field required harus dikirim.
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | ✅ | Min 3 karakter |
-| `description` | string | ❌ | |
-| `isActive` | boolean | ✅ | |
+| Field         | Type    | Required | Description    |
+| ------------- | ------- | -------- | -------------- |
+| `name`        | string  | ✅       | Min 3 karakter |
+| `description` | string  | ❌       |                |
+| `isActive`    | boolean | ✅       |                |
 
 **Response (200):** Sama seperti POST.
 
@@ -169,9 +169,9 @@ Mengupdate sebagian data Example. Hanya kirim field yang ingin diubah.
 
 **Path Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | UUID (string) | ID Example |
+| Parameter | Type          | Description |
+| --------- | ------------- | ----------- |
+| `id`      | UUID (string) | ID Example  |
 
 **Request Body:**
 
@@ -197,9 +197,9 @@ Menghapus satu Example berdasarkan ID.
 
 **Path Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | UUID (string) | ID Example |
+| Parameter | Type          | Description |
+| --------- | ------------- | ----------- |
+| `id`      | UUID (string) | ID Example  |
 
 **Response (200):**
 
@@ -237,9 +237,9 @@ Membuat banyak Example sekaligus. Setiap item diproses satu-satu — yang berhas
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `items` | array | ✅ | 1–50 items |
+| Field   | Type  | Required | Description |
+| ------- | ----- | -------- | ----------- |
+| `items` | array | ✅       | 1–50 items  |
 
 **Response (201):**
 
@@ -276,11 +276,11 @@ Membuat Example beserta item-item di dalamnya.
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | ✅ | Min 3 karakter |
-| `category` | string | ✅ | |
-| `items` | array | ✅ | 1–20 items |
+| Field      | Type   | Required | Description    |
+| ---------- | ------ | -------- | -------------- |
+| `name`     | string | ✅       | Min 3 karakter |
+| `category` | string | ✅       |                |
+| `items`    | array  | ✅       | 1–20 items     |
 
 **Response (201):**
 
@@ -293,7 +293,13 @@ Membuat Example beserta item-item di dalamnya.
     "name": "Toko Elektronik",
     "category": "Elektronik",
     "items": [
-      { "id": "...", "productName": "Kabel HDMI", "quantity": 50, "price": 25000, "exampleId": "..." },
+      {
+        "id": "...",
+        "productName": "Kabel HDMI",
+        "quantity": 50,
+        "price": 25000,
+        "exampleId": "..."
+      },
       { "id": "...", "productName": "Adaptor", "quantity": 30, "price": 75000, "exampleId": "..." }
     ],
     "totalItems": 80,
@@ -321,21 +327,21 @@ Semua endpoint mengembalikan error dengan format:
 }
 ```
 
-| Field | Description |
-|-------|-------------|
-| `message` | Pesan error umum |
-| `errors` | (optional) Error per field untuk validation |
+| Field     | Description                                 |
+| --------- | ------------------------------------------- |
+| `message` | Pesan error umum                            |
+| `errors`  | (optional) Error per field untuk validation |
 
 ### HTTP Status Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | Success |
-| 201 | Created |
-| 400 | Validation error / Bad request |
-| 404 | Resource not found |
-| 409 | Conflict (duplicate name) |
-| 500 | Internal server error |
+| Code | Description                    |
+| ---- | ------------------------------ |
+| 200  | Success                        |
+| 201  | Created                        |
+| 400  | Validation error / Bad request |
+| 404  | Resource not found             |
+| 409  | Conflict (duplicate name)      |
+| 500  | Internal server error          |
 
 ---
 

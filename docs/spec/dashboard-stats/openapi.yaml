@@ -37,7 +37,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Dashboard stats retrieved successfully"
+                    example: 'Dashboard stats retrieved successfully'
                   data:
                     type: object
                     properties:
@@ -120,7 +120,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Recent movements retrieved successfully"
+                    example: 'Recent movements retrieved successfully'
                   data:
                     type: array
                     items:

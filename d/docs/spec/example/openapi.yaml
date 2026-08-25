@@ -55,12 +55,12 @@ paths:
           schema:
             type: boolean
       responses:
-        "200":
+        '200':
           description: Examples retrieved successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiPaginatedResponse"
+                $ref: '#/components/schemas/ApiPaginatedResponse'
 
     post:
       summary: Create a new example
@@ -71,25 +71,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateExampleRequest"
+              $ref: '#/components/schemas/CreateExampleRequest'
       responses:
-        "201":
+        '201':
           description: Example created successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: "#/components/schemas/ApiResponse"
+                  - $ref: '#/components/schemas/ApiResponse'
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/Example"
-        "409":
+                        $ref: '#/components/schemas/Example'
+        '409':
           description: Example name already exists
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
   /example/bulk:
     post:
@@ -102,9 +102,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BulkCreateRequest"
+              $ref: '#/components/schemas/BulkCreateRequest'
       responses:
-        "201":
+        '201':
           description: Bulk create completed (partial success possible)
           content:
             application/json:
@@ -118,11 +118,11 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Example"
+                      $ref: '#/components/schemas/Example'
                   failed:
                     type: array
                     items:
-                      $ref: "#/components/schemas/BulkCreateFailedItem"
+                      $ref: '#/components/schemas/BulkCreateFailedItem'
 
   /example/with-items:
     post:
@@ -134,31 +134,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateWithItemsRequest"
+              $ref: '#/components/schemas/CreateWithItemsRequest'
       responses:
-        "201":
+        '201':
           description: Example with items created successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: "#/components/schemas/ApiResponse"
+                  - $ref: '#/components/schemas/ApiResponse'
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/CreateWithItemsResponse"
-        "400":
+                        $ref: '#/components/schemas/CreateWithItemsResponse'
+        '400':
           description: Duplicate product names in request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "409":
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
           description: Example name already exists
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
   /example/{id}:
     get:
@@ -174,23 +174,23 @@ paths:
             type: string
             format: uuid
       responses:
-        "200":
+        '200':
           description: Example retrieved successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: "#/components/schemas/ApiResponse"
+                  - $ref: '#/components/schemas/ApiResponse'
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/ExampleWithItems"
-        "404":
+                        $ref: '#/components/schemas/ExampleWithItems'
+        '404':
           description: Example not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
     put:
       summary: Full update an example
@@ -209,31 +209,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateExampleRequest"
+              $ref: '#/components/schemas/UpdateExampleRequest'
       responses:
-        "200":
+        '200':
           description: Example updated successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: "#/components/schemas/ApiResponse"
+                  - $ref: '#/components/schemas/ApiResponse'
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/Example"
-        "404":
+                        $ref: '#/components/schemas/Example'
+        '404':
           description: Example not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "409":
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
           description: Name conflicts with another record
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
     patch:
       summary: Partial update an example
@@ -252,37 +252,37 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PartialUpdateExampleRequest"
+              $ref: '#/components/schemas/PartialUpdateExampleRequest'
       responses:
-        "200":
+        '200':
           description: Example partially updated successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: "#/components/schemas/ApiResponse"
+                  - $ref: '#/components/schemas/ApiResponse'
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/Example"
-        "400":
+                        $ref: '#/components/schemas/Example'
+        '400':
           description: No fields provided for update
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
           description: Example not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "409":
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
           description: Name conflicts with another record
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
     delete:
       summary: Delete an example
@@ -297,23 +297,23 @@ paths:
             type: string
             format: uuid
       responses:
-        "200":
+        '200':
           description: Example deleted successfully
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: "#/components/schemas/ApiResponse"
+                  - $ref: '#/components/schemas/ApiResponse'
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/Example"
-        "404":
+                        $ref: '#/components/schemas/Example'
+        '404':
           description: Example not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
@@ -342,9 +342,9 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/ExampleWithItems"
+            $ref: '#/components/schemas/ExampleWithItems'
         pagination:
-          $ref: "#/components/schemas/PaginationMeta"
+          $ref: '#/components/schemas/PaginationMeta'
       required:
         - success
         - message
@@ -426,14 +426,14 @@ components:
 
     ExampleWithItems:
       allOf:
-        - $ref: "#/components/schemas/Example"
+        - $ref: '#/components/schemas/Example'
         - type: object
           properties:
             items:
               type: array
               description: Related items
               items:
-                $ref: "#/components/schemas/ExampleItem"
+                $ref: '#/components/schemas/ExampleItem'
           required:
             - items
 
@@ -598,7 +598,7 @@ components:
           maxItems: 20
           description: Array of items (1-20 items)
           items:
-            $ref: "#/components/schemas/ItemInput"
+            $ref: '#/components/schemas/ItemInput'
 
     CreateWithItemsResponse:
       type: object
@@ -617,7 +617,7 @@ components:
           type: array
           description: Created items
           items:
-            $ref: "#/components/schemas/ExampleItem"
+            $ref: '#/components/schemas/ExampleItem'
         totalItems:
           type: integer
           description: Sum of all item quantities

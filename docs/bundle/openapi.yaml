@@ -277,7 +277,7 @@ paths:
                       createdAt:
                         type: string
                         format: date-time
-                        example: '2026-08-23T12:00:00Z'
+                        example: 2026-08-23T12:00:00Z
         '401':
           description: Token tidak ada atau tidak valid (Unauthorized)
   /categories:
@@ -1068,3 +1068,6 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+servers:
+  - url: http://localhost:3000/api
+    description: Local development

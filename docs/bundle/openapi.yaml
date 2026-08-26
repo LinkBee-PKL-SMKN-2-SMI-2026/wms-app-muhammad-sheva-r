@@ -71,7 +71,7 @@ paths:
             type: string
             format: date
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil daftar log aktivitas
           content:
             application/json:
@@ -159,7 +159,7 @@ paths:
                   example: secret123
                   description: Password minimal 6 karakter
       responses:
-        '201':
+        "201":
           description: Berhasil mendaftar
           content:
             application/json:
@@ -205,7 +205,7 @@ paths:
                   type: string
                   example: secret123
       responses:
-        '200':
+        "200":
           description: Login berhasil
           content:
             application/json:
@@ -227,7 +227,7 @@ paths:
                       refreshToken:
                         type: string
                         example: eyJhbGciOiJIUzI1NiIsInR...
-        '401':
+        "401":
           description: Kredensial tidak valid (Email/Password salah)
   /auth/me:
     servers: []
@@ -238,7 +238,7 @@ paths:
       security:
         - Modul_Auth_WMS_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data user
           content:
             application/json:
@@ -278,7 +278,7 @@ paths:
                         type: string
                         format: date-time
                         example: 2026-08-23T12:00:00Z
-        '401':
+        "401":
           description: Token tidak ada atau tidak valid (Unauthorized)
   /categories:
     servers: []
@@ -305,7 +305,7 @@ paths:
             type: string
             description: Pencarian berdasarkan nama
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data kategori
     post:
       summary: Membuat kategori baru (Hanya Admin)
@@ -328,7 +328,7 @@ paths:
                 description:
                   type: string
       responses:
-        '201':
+        "201":
           description: Kategori berhasil dibuat
   /categories/{id}:
     servers: []
@@ -346,7 +346,7 @@ paths:
       security:
         - Categories_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil detail kategori
     put:
       summary: Mengubah data kategori (Hanya Admin)
@@ -368,7 +368,7 @@ paths:
                 isActive:
                   type: boolean
       responses:
-        '200':
+        "200":
           description: Kategori berhasil diubah
     delete:
       summary: Menghapus kategori (Hanya Admin)
@@ -377,9 +377,9 @@ paths:
       security:
         - Categories_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Kategori berhasil dihapus
-        '400':
+        "400":
           description: Gagal dihapus karena masih ada produk yang terkait
   /dashboard/stats:
     servers: []
@@ -401,7 +401,7 @@ paths:
             default: week
           description: Periode filter data
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data statistik
           content:
             application/json:
@@ -484,7 +484,7 @@ paths:
             default: 10
             maximum: 50
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil daftar pergerakan terbaru
           content:
             application/json:
@@ -564,7 +564,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data lokasi
     post:
       summary: Membuat lokasi baru (Hanya Admin)
@@ -588,7 +588,7 @@ paths:
                   type: string
                   maxLength: 10
       responses:
-        '201':
+        "201":
           description: Lokasi berhasil dibuat
   /locations/{id}:
     servers: []
@@ -606,7 +606,7 @@ paths:
       security:
         - Locations_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil lokasi
     put:
       summary: Mengubah lokasi (Hanya Admin)
@@ -628,7 +628,7 @@ paths:
                 isActive:
                   type: boolean
       responses:
-        '200':
+        "200":
           description: Lokasi berhasil diubah
     delete:
       summary: Menghapus lokasi (Hanya Admin)
@@ -637,7 +637,7 @@ paths:
       security:
         - Locations_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lokasi berhasil dihapus
   /products:
     servers: []
@@ -667,7 +667,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data produk
     post:
       summary: Membuat produk baru (Hanya Admin)
@@ -706,7 +706,7 @@ paths:
                   type: string
                   format: uuid
       responses:
-        '201':
+        "201":
           description: Produk berhasil dibuat
   /products/{id}:
     servers: []
@@ -724,7 +724,7 @@ paths:
       security:
         - Products_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Detail produk berhasil diambil
     put:
       summary: Mengubah produk (Hanya Admin)
@@ -757,7 +757,7 @@ paths:
                   type: string
                   format: uuid
       responses:
-        '200':
+        "200":
           description: Produk berhasil diubah
     delete:
       summary: Menghapus produk (Hanya Admin)
@@ -766,7 +766,7 @@ paths:
       security:
         - Products_Module_API_BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Produk berhasil dihapus
   /products/{id}/stock:
     servers: []
@@ -784,7 +784,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil info stok
           content:
             application/json:
@@ -831,7 +831,7 @@ paths:
             format: date
           description: Format YYYY-MM-DD. Jika kosong, default adalah hari ini.
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil data summary
           content:
             application/json:
@@ -894,7 +894,7 @@ paths:
             default: 10
             maximum: 100
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil daftar produk stok rendah
           content:
             application/json:
@@ -957,7 +957,7 @@ paths:
                   type: string
                   description: Catatan opsional
       responses:
-        '201':
+        "201":
           description: Berhasil mencatat inbound dan stok bertambah
   /movements/outbound:
     servers: []
@@ -986,9 +986,9 @@ paths:
                 notes:
                   type: string
       responses:
-        '201':
+        "201":
           description: Berhasil mencatat outbound dan stok berkurang
-        '400':
+        "400":
           description: Gagal karena stok tidak mencukupi
   /movements/history:
     servers: []
@@ -1032,7 +1032,7 @@ paths:
             type: string
             format: date
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil riwayat pergerakan stok
 components:
   securitySchemes:

@@ -9,10 +9,13 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-export const register = catchAsync(async (req: Request, res: Response) => {
-  const { name, email, password } = req.body as RegisterRequest;
+import { AppError } from '../utils/AppError';
+import type { RegisterRequest, LoginRequest, TokenPayload } from '../models/auth.model';
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 
-  // Trik: Gunakan findFirst dan paksa format String() untuk membungkam error Prisma
+export const register = catchAsync(async (req: Request, res: Response) => {
+  const { name, email, password } = req.body as RegisterRequest; // Trik: Gunakan findFirst dan paksa format String() untuk membungkam error Prisma
+
   const existingUser = await prisma.user.findFirst({
     where: { email: String(email) },
   });
@@ -31,9 +34,8 @@ export const register = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
-  logger.info(`User registered successfully: ${user.email}`);
+  logger.info(`User registered successfully: ${user.email}`); // 4. Generate Tokens
 
-  // 4. Generate Tokens
   const payload: TokenPayload = {
     userId: user.id,
     email: user.email,
@@ -61,9 +63,8 @@ export const register = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const login = catchAsync(async (req: Request, res: Response) => {
-  const { email, password } = req.body as LoginRequest;
+  const { email, password } = req.body as LoginRequest; // Trik: Gunakan findFirst di sini juga
 
-  // Trik: Gunakan findFirst di sini juga
   const user = await prisma.user.findFirst({
     where: { email: String(email) },
   });
@@ -82,9 +83,8 @@ export const login = catchAsync(async (req: Request, res: Response) => {
     throw new AppError('Email atau password salah', 401);
   }
 
-  logger.info(`User logged in successfully: ${user.email}`);
+  logger.info(`User logged in successfully: ${user.email}`); // 3. Generate Tokens
 
-  // 3. Generate Tokens
   const payload: TokenPayload = {
     userId: user.id,
     email: user.email,

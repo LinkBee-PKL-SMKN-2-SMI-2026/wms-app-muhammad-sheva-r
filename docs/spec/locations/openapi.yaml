@@ -1,0 +1,135 @@
+openapi: 3.1.0
+info:
+  title: Locations Module API
+  version: 1.0.0
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /locations:
+    get:
+      summary: Mengambil semua lokasi
+      tags:
+        - Locations
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: search
+          schema:
+            type: string
+            description: Pencarian berdasarkan kode atau nama
+        - in: query
+          name: sort
+          schema:
+            type: string
+            default: createdAt
+            description: Field untuk pengurutan data
+      responses:
+        '200':
+          description: Berhasil mengambil data lokasi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        code:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '401':
+          description: Tidak terautentikasi
+    post:
+      summary: Membuat lokasi baru (Hanya Admin)
+      tags:
+        - Locations
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - code
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                  maxLength: 10
+      responses:
+        '201':
+          description: Lokasi berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  message:
+                    type: string
+                    example: 'Lokasi berhasil dibuat'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      code:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '400':
+          description: Kode

@@ -1,0 +1,785 @@
+openapi: 3.1.0
+info:
+  title: Placeholder
+  version: 1.0.0
+tags:
+  - name: Auth
+    x-displayName: Auth
+  - name: Example
+    x-displayName: Example
+paths:
+  /api/auth/register:
+    servers: []
+    post:
+      summary: Mendaftarkan pengguna baru
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  example: Budi Santoso
+                  description: Nama minimal 3 karakter
+                email:
+                  type: string
+                  format: email
+                  example: budi@wms.com
+                password:
+                  type: string
+                  minLength: 6
+                  format: password
+                  example: secret123
+                  description: Password minimal 6 karakter
+      responses:
+        '201':
+          description: Berhasil mendaftar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User berhasil didaftarkan
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR...
+                      refreshToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR...
+  /api/auth/login:
+    servers: []
+    post:
+      summary: Login pengguna yang sudah terdaftar
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: budi@wms.com
+                password:
+                  type: string
+                  example: secret123
+      responses:
+        '200':
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Login berhasil
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR...
+                      refreshToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR...
+        '401':
+          description: Kredensial tidak valid (Email/Password salah)
+  /api/auth/me:
+    servers: []
+    get:
+      summary: Mengambil data pengguna yang sedang login
+      tags:
+        - Auth
+      security:
+        - Modul_Auth_WMS_BearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mengambil data user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Data user berhasil diambil
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        example: 123e4567-e89b-12d3-a456-426614174000
+                      name:
+                        type: string
+                        example: Budi Santoso
+                      email:
+                        type: string
+                        format: email
+                        example: budi@wms.com
+                      role:
+                        type: string
+                        enum:
+                          - ADMIN
+                          - STAFF
+                        example: STAFF
+                      isActive:
+                        type: boolean
+                        example: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: '2026-08-23T12:00:00Z'
+        '401':
+          description: Token tidak ada atau tidak valid (Unauthorized)
+  /example:
+    servers:
+      - url: http://localhost:3000/api
+        description: Local development
+    get:
+      summary: Get all examples
+      description: Retrieve paginated examples with search, filter, and sort
+      tags:
+        - Example
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number (default 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          description: Items per page (default 10, max 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: search
+          in: query
+          required: false
+          description: Search by name (case-insensitive)
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          description: Sort by name
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+        - name: isActive
+          in: query
+          required: false
+          description: Filter by active status
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Examples retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ApiPaginatedResponse'
+    post:
+      summary: Create a new example
+      tags:
+        - Example
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Example_API_CreateExampleRequest'
+      responses:
+        '201':
+          description: Example created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Example_API_Example'
+        '409':
+          description: Example name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+  /example/bulk:
+    servers:
+      - url: http://localhost:3000/api
+        description: Local development
+    post:
+      summary: Bulk create examples
+      description: >-
+        Create multiple examples at once. Each item is processed individually —
+        successful ones return in `data`, failures in `failed`.
+      tags:
+        - Example
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Example_API_BulkCreateRequest'
+      responses:
+        '201':
+          description: Bulk create completed (partial success possible)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Example_API_Example'
+                  failed:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Example_API_BulkCreateFailedItem'
+  /example/with-items:
+    servers:
+      - url: http://localhost:3000/api
+        description: Local development
+    post:
+      summary: Create example with nested items
+      tags:
+        - Example
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Example_API_CreateWithItemsRequest'
+      responses:
+        '201':
+          description: Example with items created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: >-
+                          #/components/schemas/Example_API_CreateWithItemsResponse
+        '400':
+          description: Duplicate product names in request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+        '409':
+          description: Example name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+  /example/{id}:
+    servers:
+      - url: http://localhost:3000/api
+        description: Local development
+    get:
+      summary: Get example by ID
+      tags:
+        - Example
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Example ID (UUID)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Example retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Example_API_ExampleWithItems'
+        '404':
+          description: Example not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+    put:
+      summary: Full update an example
+      tags:
+        - Example
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Example ID (UUID)
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Example_API_UpdateExampleRequest'
+      responses:
+        '200':
+          description: Example updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Example_API_Example'
+        '404':
+          description: Example not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+        '409':
+          description: Name conflicts with another record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+    patch:
+      summary: Partial update an example
+      tags:
+        - Example
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Example ID (UUID)
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Example_API_PartialUpdateExampleRequest'
+      responses:
+        '200':
+          description: Example partially updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Example_API_Example'
+        '400':
+          description: No fields provided for update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+        '404':
+          description: Example not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+        '409':
+          description: Name conflicts with another record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+    delete:
+      summary: Delete an example
+      tags:
+        - Example
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Example ID (UUID)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Example deleted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Example_API_ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Example_API_Example'
+        '404':
+          description: Example not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example_API_ErrorResponse'
+components:
+  securitySchemes:
+    Modul_Auth_WMS_BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Example_API_ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the request was successful
+        message:
+          type: string
+          description: Response message
+        data:
+          description: Response payload
+      required:
+        - success
+        - message
+    Example_API_ApiPaginatedResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Example_API_ExampleWithItems'
+        pagination:
+          $ref: '#/components/schemas/Example_API_PaginationMeta'
+      required:
+        - success
+        - message
+        - data
+        - pagination
+    Example_API_PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Items per page
+        total:
+          type: integer
+          description: Total number of items
+        totalPages:
+          type: integer
+          description: Total number of pages
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+    Example_API_ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: Error message
+        errors:
+          type: object
+          description: Field-level validation errors
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+        - success
+        - message
+    Example_API_Example:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Example ID
+        name:
+          type: string
+          description: Example name
+        description:
+          type: string
+          nullable: true
+          description: Example description
+        isActive:
+          type: boolean
+          description: Active status
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - name
+        - isActive
+        - createdAt
+        - updatedAt
+    Example_API_ExampleWithItems:
+      allOf:
+        - $ref: '#/components/schemas/Example_API_Example'
+        - type: object
+          properties:
+            items:
+              type: array
+              description: Related items
+              items:
+                $ref: '#/components/schemas/Example_API_ExampleItem'
+          required:
+            - items
+    Example_API_ExampleItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Item ID
+        productName:
+          type: string
+          description: Product name
+        quantity:
+          type: integer
+          description: Quantity
+        price:
+          type: integer
+          description: Price in smallest currency unit (e.g. cents)
+        exampleId:
+          type: string
+          format: uuid
+          description: Parent example ID
+      required:
+        - id
+        - productName
+        - quantity
+        - price
+        - exampleId
+    Example_API_CreateExampleRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 3
+          description: Example name (min 3 characters)
+        description:
+          type: string
+          description: Example description
+        isActive:
+          type: boolean
+          default: true
+          description: Active status (defaults to true)
+    Example_API_UpdateExampleRequest:
+      type: object
+      required:
+        - name
+        - isActive
+      properties:
+        name:
+          type: string
+          minLength: 3
+          description: Example name (min 3 characters)
+        description:
+          type: string
+          description: Example description
+        isActive:
+          type: boolean
+          description: Active status
+    Example_API_PartialUpdateExampleRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 3
+          description: Example name (min 3 characters)
+        description:
+          type: string
+          description: Example description
+        isActive:
+          type: boolean
+          description: Active status
+    Example_API_BulkCreateRequest:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 50
+          description: Array of examples to create (1-50 items)
+          items:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                minLength: 3
+                description: Example name (min 3 characters)
+              description:
+                type: string
+                description: Example description
+              isActive:
+                type: boolean
+                default: true
+                description: Active status
+    Example_API_BulkCreateFailedItem:
+      type: object
+      properties:
+        index:
+          type: integer
+          description: Index of the failed item in the request array
+        name:
+          type: string
+          description: Name of the failed item
+        reason:
+          type: string
+          description: Failure reason
+      required:
+        - index
+        - name
+        - reason
+    Example_API_ItemInput:
+      type: object
+      required:
+        - productName
+        - quantity
+        - price
+      properties:
+        productName:
+          type: string
+          minLength: 1
+          description: Product name
+        quantity:
+          type: integer
+          exclusiveMinimum: 0
+          description: Quantity (must be > 0)
+        price:
+          type: integer
+          exclusiveMinimum: 0
+          description: Price in smallest currency unit (must be > 0)
+    Example_API_CreateWithItemsRequest:
+      type: object
+      required:
+        - name
+        - category
+        - items
+      properties:
+        name:
+          type: string
+          minLength: 3
+          description: Example name (min 3 characters)
+        category:
+          type: string
+          minLength: 1
+          description: Category name
+        items:
+          type: array
+          minItems: 1
+          maxItems: 20
+          description: Array of items (1-20 items)
+          items:
+            $ref: '#/components/schemas/Example_API_ItemInput'
+    Example_API_CreateWithItemsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Example ID
+        name:
+          type: string
+          description: Example name
+        category:
+          type: string
+          description: Category name
+        items:
+          type: array
+          description: Created items
+          items:
+            $ref: '#/components/schemas/Example_API_ExampleItem'
+        totalItems:
+          type: integer
+          description: Sum of all item quantities
+        totalValue:
+          type: integer
+          description: Sum of all item price * quantity
+      required:
+        - id
+        - name
+        - category
+        - items
+        - totalItems
+        - totalValue

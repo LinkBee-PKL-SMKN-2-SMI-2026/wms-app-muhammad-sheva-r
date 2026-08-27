@@ -14,7 +14,7 @@ export const authorize = (...roles: string[]) => {
         return next(new AppError('Unauthorized', 401));
       }
 
-      const user = await prisma.users.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: req.user.userId },
         select: { role: true },
       });

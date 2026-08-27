@@ -1,0 +1,191 @@
+openapi: 3.1.0
+info:
+  title: Modul Auth WMS
+  version: 1.0.0
+  description: Dokumentasi API untuk autentikasi pengguna (Register, Login, dan Profil)
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /auth/register:
+    post:
+      summary: Mendaftarkan pengguna baru
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  example: 'Budi Santoso'
+                  description: 'Nama minimal 3 karakter'
+                email:
+                  type: string
+                  format: email
+                  example: 'budi@wms.com'
+                password:
+                  type: string
+                  minLength: 6
+                  format: password
+                  example: 'secret123'
+                  description: 'Password minimal 6 karakter'
+      responses:
+        '201':
+          description: Berhasil mendaftar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  message:
+                    type: string
+                    example: 'Registrasi berhasil'
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          email:
+                            type: string
+                            format: email
+                          role:
+                            type: string
+                            enum: [ADMIN, MANAGER, STAFF]
+                      tokens:
+                        type: object
+                        properties:
+                          accessToken:
+                            type: string
+                            example: 'eyJhbGciOiJIUzI1NiIsInR...'
+                          refreshToken:
+                            type: string
+                            example: 'eyJhbGciOiJIUzI1NiIsInR...'
+        '400':
+          description: Email sudah terdaftar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Email sudah terdaftar'
+
+  /auth/login:
+    post:
+      summary: Login pengguna yang sudah terdaftar
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: 'budi@wms.com'
+                password:
+                  type: string
+                  example: 'secret123'
+      responses:
+        '200':
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  message:
+                    type: string
+                    example: 'Login berhasil'
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          email:
+                            type: string
+                            format: email
+                          role:
+                            type: string
+                            enum: [ADMIN, MANAGER, STAFF]
+                      tokens:
+                        type: object
+                        properties:
+                          accessToken:
+                            type: string
+                            example: 'eyJhbGciOiJIUzI1NiIsInR...'
+                          refreshToken:
+                            type: string
+                            example: 'eyJhbGciOiJIUzI1NiIsInR...'
+        '401':
+          description: Kredensial tidak valid (Email/Password salah)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Email atau password salah'
+        '403':
+          description: Akun tidak aktif
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Akun anda tidak aktif'
+
+  /auth/me:
+    get:
+      summary: Mengambil data pengguna yang sedang login
+      tags:
+        - Auth

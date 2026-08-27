@@ -1,0 +1,83 @@
+openapi: 3.1.0
+info:
+  title: Stock Movements Module API
+  version: 1.0.0
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /movements/inbound:
+    post:
+      summary: Mencatat barang masuk (Inbound)
+      tags:
+        - Stock Movements
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+                - quantity
+              properties:
+                productId:
+                  type: string
+                  format: uuid
+                  description: ID dari produk
+                quantity:
+                  type: integer
+                  minimum: 1
+                  description: Jumlah barang masuk (harus lebih dari 0)
+                notes:
+                  type: string
+                  description: Catatan opsional
+      responses:
+        '201':
+          description: Berhasil mencatat inbound dan stok bertambah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  message:
+                    type: string
+                    example: 'Barang masuk berhasil dicatat'
+                  data:
+                    type: object
+                    properties:
+                      movement:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          type:
+                            type: string
+                            enum: [IN, OUT, ADJUSTMENT]
+                          quantity:
+                            type: integer
+                          notes:
+                            type: string
+                            nullable: true
+                          userId:
+                            type: string
+                            format: uuid
+                          productId:
+                            type: string
+                            format: uuid
+                          createdAt:
+                            type: string
+                            format: date-time
+                      updatedProduct:
+                        type: object
+                        description: Data produk setelah stok diperbarui
+        '401':

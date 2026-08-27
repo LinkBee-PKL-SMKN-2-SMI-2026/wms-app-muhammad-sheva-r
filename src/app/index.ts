@@ -8,6 +8,8 @@ import { errorHandler } from '../middlewares/errorHandler.middleware';
 // Inisialisasi App
 const app = express();
 const PORT = process.env.PORT;
+import cors from 'cors';
+app.use(cors());
 
 // Register Middleware
 app.use(express.json()); // Default: Jangan dihapus

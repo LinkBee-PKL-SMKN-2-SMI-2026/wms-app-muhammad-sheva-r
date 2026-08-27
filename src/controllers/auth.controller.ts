@@ -2,44 +2,40 @@ import type { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import type { RegisterRequest, LoginRequest } from '../models/auth.dto';
-import type { TokenPayload } from '../models/auth.model';
-import type { AuthRequest } from '../middlewares/authenticate.middleware';
-import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
-import { AppError } from '../utils/AppError';
+import { Pool } from 'pg';
 import { catchAsync } from '../utils/catchAsync';
 import { logger } from '../utils/logger';
-
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-export const register = catchAsync(async (req: Request, res: Response) => {
-  const { name, email, password } = req.body as RegisterRequest;
+import { AppError } from '../utils/AppError';
+import type { RegisterRequest, LoginRequest, TokenPayload } from '../models/auth.model';
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 
-  // 1. Cek email terdaftar
-  const existingUser = await prisma.users.findUnique({
-    where: { email },
+export const register = catchAsync(async (req: Request, res: Response) => {
+  const { name, email, password } = req.body as RegisterRequest; // Trik: Gunakan findFirst dan paksa format String() untuk membungkam error Prisma
+
+  const existingUser = await prisma.user.findFirst({
+    where: { email: String(email) },
   });
 
   if (existingUser) {
     throw new AppError('Email sudah terdaftar', 400);
   }
 
-  // 2. Hash password
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(String(password), 10);
 
-  // 3. Buat user baru
-  const user = await prisma.users.create({
+  const user = await prisma.user.create({
     data: {
-      name,
-      email,
+      name: String(name),
+      email: String(email),
       password: hashedPassword,
     },
   });
 
-  logger.info(`User registered successfully: ${user.email}`);
+  logger.info(`User registered successfully: ${user.email}`); // 4. Generate Tokens
 
-  // 4. Generate Tokens
   const payload: TokenPayload = {
     userId: user.id,
     email: user.email,
@@ -67,27 +63,28 @@ export const register = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const login = catchAsync(async (req: Request, res: Response) => {
-  const { email, password } = req.body as LoginRequest;
+  const { email, password } = req.body as LoginRequest; // Trik: Gunakan findFirst di sini juga
 
-  // 1. Cari user berdasarkan email
-  const user = await prisma.users.findUnique({
-    where: { email },
+  const user = await prisma.user.findFirst({
+    where: { email: String(email) },
   });
 
   if (!user) {
     throw new AppError('Email atau password salah', 401);
   }
 
-  // 2. Verifikasi password
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!user.isActive) {
+    throw new AppError('Akun anda tidak aktif', 403);
+  }
+
+  const isPasswordValid = await bcrypt.compare(String(password), user.password);
 
   if (!isPasswordValid) {
     throw new AppError('Email atau password salah', 401);
   }
 
-  logger.info(`User logged in successfully: ${user.email}`);
+  logger.info(`User logged in successfully: ${user.email}`); // 3. Generate Tokens
 
-  // 3. Generate Tokens
   const payload: TokenPayload = {
     userId: user.id,
     email: user.email,
@@ -114,30 +111,18 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const getMe = catchAsync(async (req: AuthRequest, res: Response) => {
-  const { userId } = req.user as TokenPayload;
+export const getMe = catchAsync((req: Request, res: Response) => {
+  const currentUser = (req as Request & { user?: unknown }).user;
 
-  const user = await prisma.users.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      isActive: true,
-      createdAt: true,
-    },
-  });
-
-  if (!user) {
-    throw new AppError('User tidak ditemukan', 404);
+  if (!currentUser) {
+    throw new AppError('Anda belum login atau token tidak valid', 401);
   }
 
-  logger.info(`Fetched profile for user ID: ${userId}`);
-
-  return res.status(200).json({
-    success: true,
-    message: 'Data user berhasil diambil',
-    data: user,
+  res.status(200).json({
+    status: 'success',
+    message: 'Berhasil mengambil data profil',
+    data: {
+      user: currentUser,
+    },
   });
 });

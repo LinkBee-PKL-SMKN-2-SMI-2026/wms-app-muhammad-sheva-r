@@ -1,28 +1,46 @@
 import type { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
+import type { GetDashboardStatsQuery, GetRecentMovementsQuery } from '../models/dashboard.dto';
 import { catchAsync } from '../utils/catchAsync';
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL! });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const getDateFilter = (period: string): Date => {
+/**
+ * 1. FUNGSI GET DASHBOARD STATS (STATISTIK REAL-TIME DASHBOARD)
+ * Mengambil data statistik komprehensif untuk halaman utama dashboard:
+ * - Overview (total produk, total stok, stok tipis, stok habis)
+ * - Pergerakan barang (Inbound, Outbound, Net Movement berdasarkan periode)
+ * - Top 5 produk dengan pergerakan terbanyak
+ * - Distribusi produk dan stok per kategori
+ */
+export const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
+  // Ambil query 'period' dari URL (pilihan: 'today', 'week', atau 'month'). Default-nya 'week'.
+  const { period = 'week' } = req.query as unknown as GetDashboardStatsQuery;
+
+  // 1. Tentukan tanggal filter berdasarkan periode waktu yang dipilih
   const now = new Date();
+  let dateFilter: Date;
+
   switch (period) {
     case 'today':
-      return new Date(now.setHours(0, 0, 0, 0));
-    case 'month':
-      return new Date(now.setDate(now.getDate() - 30));
+      // Filter dari awal hari ini (jam 00:00)
+      dateFilter = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      break;
     case 'week':
-    default:
-      return new Date(now.setDate(now.getDate() - 7));
+      // Filter 7 hari ke belakang dari sekarang
+      dateFilter = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case 'month':
+      // Filter 30 hari ke belakang dari sekarang
+      dateFilter = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      break;
   }
-};
 
-export const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
-  const period = (req.query.period as string) || 'week';
-  const dateFilter = getDateFilter(period);
-
+  // 2. Eksekusi 8 query database secara paralel (bersamaan) menggunakan Promise.all untuk kecepatan ekstra
   const [
     totalProducts,
     totalStockAgg,
@@ -30,84 +48,105 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
     outOfStockCount,
     inboundAgg,
     outboundAgg,
-    topMovementsAgg,
-    categoryDistributionRaw,
+    topMovementsGroup,
+    categoriesWithProducts,
   ] = await Promise.all([
-    prisma.products.count({ where: { isActive: true } }),
-    prisma.products.aggregate({
-      where: { isActive: true },
+    // [A] Overview: Total seluruh produk
+    // (model Product tidak punya field isActive, jadi dihapus)
+    prisma.product.count(),
+
+    // [B] Overview: Total akumulasi seluruh stok produk
+    prisma.product.aggregate({
       _sum: { stock: true },
     }),
-    prisma.products.count({
-      where: {
-        isActive: true,
-        stock: { lt: prisma.products.fields.minimumStock },
-      },
-    }),
-    prisma.products.count({
-      where: { isActive: true, stock: 0 },
+
+    // [C] Overview: Jumlah produk dengan stok tipis (stok > 0 tapi <= minimumStock)
+    // Perbandingan antar kolom tidak bisa lewat `where` biasa di Prisma,
+    // jadi pakai raw query. Nama tabel "products" mengikuti @@map("products").
+    prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*)::int as count FROM "products"
+      WHERE stock > 0 AND stock <= "minimumStock"
+    `.then((result) => Number(result[0]?.count ?? 0)),
+
+    // [D] Overview: Jumlah produk yang stoknya habis (stok = 0)
+    prisma.product.count({
+      where: { stock: 0 },
     }),
 
-    prisma.stock_Movements.aggregate({
+    // [E] Movements: Total barang masuk pada periode waktu tersebut
+    // (enum MovementType nilainya 'IN', bukan 'INBOUND')
+    prisma.stockMovement.aggregate({
+      _sum: { quantity: true },
       where: {
-        type: 'INBOUND',
+        type: 'IN',
         createdAt: { gte: dateFilter },
       },
-      _sum: { quantity: true },
-    }),
-    prisma.stock_Movements.aggregate({
-      where: {
-        type: 'OUTBOUND',
-        createdAt: { gte: dateFilter },
-      },
-      _sum: { quantity: true },
     }),
 
-    prisma.stock_Movements.groupBy({
+    // [F] Movements: Total barang keluar pada periode waktu tersebut
+    // (enum MovementType nilainya 'OUT', bukan 'OUTBOUND')
+    prisma.stockMovement.aggregate({
+      _sum: { quantity: true },
+      where: {
+        type: 'OUT',
+        createdAt: { gte: dateFilter },
+      },
+    }),
+
+    // [G] Top Products: Mengelompokkan (groupBy) transaksi berdasarkan productId,
+    // lalu urutkan dari yang jumlah akumulasi pergerakannya terbanyak (Top 5).
+    prisma.stockMovement.groupBy({
       by: ['productId'],
-      where: { createdAt: { gte: dateFilter } },
       _sum: { quantity: true },
+      where: { createdAt: { gte: dateFilter } },
       orderBy: { _sum: { quantity: 'desc' } },
       take: 5,
     }),
 
-    prisma.categories.findMany({
+    // [H] Category Distribution: Ambil semua kategori beserta seluruh stok produk di dalamnya
+    // (model Category tidak punya field isActive, jadi dihapus)
+    prisma.category.findMany({
       select: {
         name: true,
         products: {
-          where: { isActive: true },
           select: { stock: true },
         },
       },
     }),
   ]);
 
-  const topProductIds = topMovementsAgg.map((item) => item.productId);
-  const productsInfo = await prisma.products.findMany({
+  // 3. Kalkulasi data statistik pergerakan barang
+  const totalInbound = inboundAgg._sum.quantity || 0;
+  const totalOutbound = outboundAgg._sum.quantity || 0;
+  const netMovement = totalInbound - totalOutbound; // Selisih barang masuk vs keluar
+
+  // 4. Ambil informasi nama & SKU untuk 5 produk teratas (Top 5 Products)
+  const topProductIds = topMovementsGroup.map((item) => item.productId);
+  const productsDetail = await prisma.product.findMany({
     where: { id: { in: topProductIds } },
     select: { id: true, name: true, sku: true },
   });
 
-  const topProducts = topMovementsAgg.map((item) => {
-    const product = productsInfo.find((p) => p.id === item.productId);
+  // Gabungkan ID produk dari groupBy dengan detail nama & SKU yang baru di-query
+  const topProducts = topMovementsGroup.map((groupItem) => {
+    const productInfo = productsDetail.find((p) => p.id === groupItem.productId);
     return {
-      id: item.productId,
-      name: product?.name || 'Unknown',
-      sku: product?.sku || '-',
-      totalMovement: item._sum.quantity || 0,
+      id: groupItem.productId,
+      name: productInfo?.name || 'Unknown',
+      sku: productInfo?.sku || '-',
+      totalMovement: groupItem._sum.quantity || 0,
     };
   });
 
-  const categoryDistribution = categoryDistributionRaw.map((cat) => ({
+  // 5. Format data distribusi per kategori (menghitung total jenis produk & total stok per kategori)
+  const categoryDistribution = categoriesWithProducts.map((cat) => ({
     categoryName: cat.name,
     productCount: cat.products.length,
     totalStock: cat.products.reduce((acc, curr) => acc + curr.stock, 0),
   }));
 
-  const totalInbound = inboundAgg._sum.quantity || 0;
-  const totalOutbound = outboundAgg._sum.quantity || 0;
-
-  return res.status(200).json({
+  // Kirim respon akhir ke client
+  res.status(200).json({
     success: true,
     message: 'Dashboard stats retrieved successfully',
     data: {
@@ -120,7 +159,7 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
       movements: {
         totalInbound,
         totalOutbound,
-        netMovement: totalInbound - totalOutbound,
+        netMovement,
       },
       topProducts,
       categoryDistribution,
@@ -128,33 +167,45 @@ export const getDashboardStats = catchAsync(async (req: Request, res: Response) 
   });
 });
 
+/**
+ * 2. FUNGSI GET RECENT MOVEMENTS (RIWAYAT PERGERAKAN TERBARU)
+ * Mengambil 10 (atau sesuai limit) transaksi pergerakan barang terbaru
+ * lengkap dengan data pendukung (nama/SKU produk & nama user pelaksana).
+ */
 export const getRecentMovements = catchAsync(async (req: Request, res: Response) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
+  // Ambil parameter pagination dari URL query
+  const { page = 1, limit = 10 } = req.query as unknown as GetRecentMovementsQuery;
 
+  // Konversi input string URL ke tipe Number
+  const pageNum = Number(page);
+  const limitNum = Number(limit);
+  const skip = (pageNum - 1) * limitNum;
+
+  // Jalankan query pengambilan data riwayat dan hitung total data secara paralel
   const [movements, total] = await Promise.all([
-    prisma.stock_Movements.findMany({
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: limit,
+    prisma.stockMovement.findMany({
+      orderBy: { createdAt: 'desc' }, // Urutkan dari transaksi paling baru
+      take: limitNum, // Jumlah data per halaman
+      skip, // Data yang dilewati untuk pagination
       include: {
-        product: { select: { id: true, name: true, sku: true } },
-        user: { select: { id: true, name: true } },
+        product: { select: { id: true, name: true, sku: true } }, // Sertakan info produk
+        user: { select: { id: true, name: true } }, // Sertakan info user pelaksana
       },
     }),
-    prisma.stock_Movements.count(),
+
+    // Hitung total seluruh riwayat pergerakan stok di database
+    prisma.stockMovement.count(),
   ]);
 
-  return res.status(200).json({
+  res.status(200).json({
     success: true,
     message: 'Recent movements retrieved successfully',
     data: movements,
     pagination: {
-      page,
-      limit,
+      page: pageNum,
+      limit: limitNum,
       total,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(total / limitNum), // Kalkulasi total halaman
     },
   });
 });

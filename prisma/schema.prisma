@@ -1,90 +1,103 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
+
 }
 
-model Users {
-  id             String            @id @default(uuid())
+generator client {
+  provider = "prisma-client-js"
+  output = "../src/generated/prisma"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  password     String
+  role         Role          @default(STAFF)
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  activityLogs ActivityLog[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Location {
+  id        String    @id @default(uuid())
+  name      String
+  code      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@map("locations")
+}
+
+model Product {
+  id             String          @id @default(uuid())
   name           String
-  email          String            @unique
-  password       String
-  role           Role              @default(STAFF)
-  isActive       Boolean           @default(true)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  stockMovements Stock_Movements[]
-  activityLogs   Activity_Logs[]
+  sku            String          @unique
+  description    String?
+  stock          Int             @default(0)
+  minimumStock   Int             @default(0)
+  categoryId     String
+  category       Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locationId     String
+  location       Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  stockMovements StockMovement[]
+
+  @@map("products")
+}
+
+model StockMovement {
+  id        String       @id @default(uuid())
+  productId String
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type      MovementType
+  quantity  Int
+  reference String?
+  notes     String?
+  userId    String
+  createdAt DateTime     @default(now())
+
+  @@map("stock_movements")
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@map("activity_logs")
 }
 
 enum Role {
   ADMIN
+  MANAGER
   STAFF
 }
 
-model Categories {
-  id          String     @id @default(uuid())
-  name        String     @unique
-  description String?
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  products    Products[]
-}
-
-model Locations {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  code      String     @unique
-  isActive  Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  products  Products[]
-}
-
-model Products {
-  id             String            @id @default(uuid())
-  name           String
-  sku            String            @unique
-  description    String?
-  stock          Int               @default(0)
-  minimumStock   Int               @default(10)
-  isActive       Boolean           @default(true)
-  categoryId     String
-  locationId     String
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  category       Categories        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  location       Locations         @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  stockMovements Stock_Movements[]
-}
-
-model Stock_Movements {
-  id        String       @id @default(uuid())
-  type      MovementType
-  quantity  Int
-  notes     String?
-  userId    String
-  productId String
-  createdAt DateTime     @default(now())
-  user      Users        @relation(fields: [userId], references: [id], onDelete: Restrict)
-  product   Products     @relation(fields: [productId], references: [id], onDelete: Restrict)
-}
-
 enum MovementType {
-  INBOUND
-  OUTBOUND
-}
-
-model Activity_Logs {
-  id        String   @id @default(uuid())
-  action    String
-  entity    String
-  entityId  String?
-  detail    Json?
-  userId    String
-  createdAt DateTime @default(now())
-  user      Users    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  IN
+  OUT
+  ADJUSTMENT
 }

@@ -1,0 +1,122 @@
+openapi: 3.1.0
+info:
+  title: Reports Module API
+  version: 1.0.0
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /reports/summary:
+    get:
+      summary: Mengambil rekapitulasi data gudang (Summary)
+      tags:
+        - Reports
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+          description: 'Format YYYY-MM-DD. Jika kosong, default adalah hari ini.'
+      responses:
+        '200':
+          description: Berhasil mengambil data summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Summary retrieved successfully'
+                  data:
+                    type: object
+                    properties:
+                      totalProducts:
+                        type: integer
+                        example: 150
+                      totalCategories:
+                        type: integer
+                        example: 12
+                      totalLocations:
+                        type: integer
+                        example: 8
+                      totalStockInboundToday:
+                        type: integer
+                        example: 250
+                      totalStockOutboundToday:
+                        type: integer
+                        example: 120
+                      totalUsers:
+                        type: integer
+                        example: 5
+
+  /reports/low-stock:
+    get:
+      summary: Mengambil daftar produk dengan stok di bawah threshold
+      tags:
+        - Reports
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: threshold
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+          description: Batas minimum stok
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+      responses:
+        '200':
+          description: Berhasil mengambil daftar produk stok rendah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Low stock products retrieved successfully'
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        sku:
+                          type: string
+                        stock:
+                          type: integer
+                        minimumStock:
+                          type: integer
+                        categoryName:
+                          type: string
+                        locationName:
+                          type: string

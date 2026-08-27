@@ -1,0 +1,1073 @@
+openapi: 3.1.0
+info:
+  title: Activity Logs Module API
+  version: 1.0.0
+tags:
+  - name: Activity Logs
+    x-displayName: Activity Logs
+  - name: Auth
+    x-displayName: Auth
+  - name: Categories
+    x-displayName: Categories
+  - name: Dashboard
+    x-displayName: Dashboard
+  - name: Locations
+    x-displayName: Locations
+  - name: Products
+    x-displayName: Products
+  - name: Reports
+    x-displayName: Reports
+  - name: Stock Movements
+    x-displayName: Stock Movements
+paths:
+  /activity-logs:
+    servers: []
+    get:
+      summary: Mengambil daftar riwayat aktivitas sistem (Audit Trail)
+      tags:
+        - Activity Logs
+      security:
+        - Activity_Logs_Module_API_BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+        - in: query
+          name: userId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: action
+          schema:
+            type: string
+            enum:
+              - CREATE
+              - UPDATE
+              - DELETE
+              - LOGIN
+              - LOGOUT
+        - in: query
+          name: entity
+          schema:
+            type: string
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Berhasil mengambil daftar log aktivitas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Activity logs retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        action:
+                          type: string
+                          enum:
+                            - CREATE
+                            - UPDATE
+                            - DELETE
+                            - LOGIN
+                            - LOGOUT
+                        entity:
+                          type: string
+                        entityId:
+                          type: string
+                          format: uuid
+                          nullable: true
+                        detail:
+                          type: object
+                          additionalProperties: true
+                          nullable: true
+                        userName:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+  /auth/register:
+    servers: []
+    post:
+      summary: Mendaftarkan pengguna baru
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  example: Budi Santoso
+                  description: Nama minimal 3 karakter
+                email:
+                  type: string
+                  format: email
+                  example: budi@wms.com
+                password:
+                  type: string
+                  minLength: 6
+                  format: password
+                  example: secret123
+                  description: Password minimal 6 karakter
+      responses:
+        "201":
+          description: Berhasil mendaftar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User berhasil didaftarkan
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR...
+                      refreshToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR...
+  /auth/login:
+    servers: []
+    post:
+      summary: Login pengguna yang sudah terdaftar
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: budi@wms.com
+                password:
+                  type: string
+                  example: secret123
+      responses:
+        "200":
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Login berhasil
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR...
+                      refreshToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR...
+        "401":
+          description: Kredensial tidak valid (Email/Password salah)
+  /auth/me:
+    servers: []
+    get:
+      summary: Mengambil data pengguna yang sedang login
+      tags:
+        - Auth
+      security:
+        - Modul_Auth_WMS_BearerAuth: []
+      responses:
+        "200":
+          description: Berhasil mengambil data user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Data user berhasil diambil
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        example: 123e4567-e89b-12d3-a456-426614174000
+                      name:
+                        type: string
+                        example: Budi Santoso
+                      email:
+                        type: string
+                        format: email
+                        example: budi@wms.com
+                      role:
+                        type: string
+                        enum:
+                          - ADMIN
+                          - STAFF
+                        example: STAFF
+                      isActive:
+                        type: boolean
+                        example: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: 2026-08-23T12:00:00Z
+        "401":
+          description: Token tidak ada atau tidak valid (Unauthorized)
+  /categories:
+    servers: []
+    get:
+      summary: Mengambil semua kategori (dengan pagination & search)
+      tags:
+        - Categories
+      security:
+        - Categories_Module_API_BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: search
+          schema:
+            type: string
+            description: Pencarian berdasarkan nama
+      responses:
+        "200":
+          description: Berhasil mengambil data kategori
+    post:
+      summary: Membuat kategori baru (Hanya Admin)
+      tags:
+        - Categories
+      security:
+        - Categories_Module_API_BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Kategori berhasil dibuat
+  /categories/{id}:
+    servers: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Mengambil detail kategori berdasarkan ID
+      tags:
+        - Categories
+      security:
+        - Categories_Module_API_BearerAuth: []
+      responses:
+        "200":
+          description: Berhasil mengambil detail kategori
+    put:
+      summary: Mengubah data kategori (Hanya Admin)
+      tags:
+        - Categories
+      security:
+        - Categories_Module_API_BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                isActive:
+                  type: boolean
+      responses:
+        "200":
+          description: Kategori berhasil diubah
+    delete:
+      summary: Menghapus kategori (Hanya Admin)
+      tags:
+        - Categories
+      security:
+        - Categories_Module_API_BearerAuth: []
+      responses:
+        "200":
+          description: Kategori berhasil dihapus
+        "400":
+          description: Gagal dihapus karena masih ada produk yang terkait
+  /dashboard/stats:
+    servers: []
+    get:
+      summary: Mengambil statistik dashboard
+      tags:
+        - Dashboard
+      security:
+        - Dashboard_Stats_Module_API_BearerAuth: []
+      parameters:
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum:
+              - today
+              - week
+              - month
+            default: week
+          description: Periode filter data
+      responses:
+        "200":
+          description: Berhasil mengambil data statistik
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Dashboard stats retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      overview:
+                        type: object
+                        properties:
+                          totalProducts:
+                            type: integer
+                          totalStock:
+                            type: integer
+                          lowStockCount:
+                            type: integer
+                          outOfStockCount:
+                            type: integer
+                      movements:
+                        type: object
+                        properties:
+                          totalInbound:
+                            type: integer
+                          totalOutbound:
+                            type: integer
+                          netMovement:
+                            type: integer
+                      topProducts:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            sku:
+                              type: string
+                            totalMovement:
+                              type: integer
+                      categoryDistribution:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            categoryName:
+                              type: string
+                            productCount:
+                              type: integer
+                            totalStock:
+                              type: integer
+  /dashboard/recent-movements:
+    servers: []
+    get:
+      summary: Mengambil pergerakan stok terbaru
+      tags:
+        - Dashboard
+      security:
+        - Dashboard_Stats_Module_API_BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+      responses:
+        "200":
+          description: Berhasil mengambil daftar pergerakan terbaru
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Recent movements retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                          enum:
+                            - INBOUND
+                            - OUTBOUND
+                        quantity:
+                          type: integer
+                        notes:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                        product:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            sku:
+                              type: string
+                        user:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+  /locations:
+    servers: []
+    get:
+      summary: Mengambil semua lokasi
+      tags:
+        - Locations
+      security:
+        - Locations_Module_API_BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data lokasi
+    post:
+      summary: Membuat lokasi baru (Hanya Admin)
+      tags:
+        - Locations
+      security:
+        - Locations_Module_API_BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - code
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                  maxLength: 10
+      responses:
+        "201":
+          description: Lokasi berhasil dibuat
+  /locations/{id}:
+    servers: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Mengambil detail lokasi
+      tags:
+        - Locations
+      security:
+        - Locations_Module_API_BearerAuth: []
+      responses:
+        "200":
+          description: Berhasil mengambil lokasi
+    put:
+      summary: Mengubah lokasi (Hanya Admin)
+      tags:
+        - Locations
+      security:
+        - Locations_Module_API_BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                isActive:
+                  type: boolean
+      responses:
+        "200":
+          description: Lokasi berhasil diubah
+    delete:
+      summary: Menghapus lokasi (Hanya Admin)
+      tags:
+        - Locations
+      security:
+        - Locations_Module_API_BearerAuth: []
+      responses:
+        "200":
+          description: Lokasi berhasil dihapus
+  /products:
+    servers: []
+    get:
+      summary: Mengambil semua produk dengan filter
+      tags:
+        - Products
+      security:
+        - Products_Module_API_BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: locationId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Berhasil mengambil data produk
+    post:
+      summary: Membuat produk baru (Hanya Admin)
+      tags:
+        - Products
+      security:
+        - Products_Module_API_BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - sku
+                - categoryId
+                - locationId
+              properties:
+                name:
+                  type: string
+                sku:
+                  type: string
+                description:
+                  type: string
+                stock:
+                  type: integer
+                  default: 0
+                minimumStock:
+                  type: integer
+                  default: 10
+                categoryId:
+                  type: string
+                  format: uuid
+                locationId:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Produk berhasil dibuat
+  /products/{id}:
+    servers: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Mengambil detail produk
+      tags:
+        - Products
+      security:
+        - Products_Module_API_BearerAuth: []
+      responses:
+        "200":
+          description: Detail produk berhasil diambil
+    put:
+      summary: Mengubah produk (Hanya Admin)
+      description: Stock tidak bisa diupdate dari sini, melainkan melalui Stock Movements.
+      tags:
+        - Products
+      security:
+        - Products_Module_API_BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                sku:
+                  type: string
+                description:
+                  type: string
+                minimumStock:
+                  type: integer
+                isActive:
+                  type: boolean
+                categoryId:
+                  type: string
+                  format: uuid
+                locationId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Produk berhasil diubah
+    delete:
+      summary: Menghapus produk (Hanya Admin)
+      tags:
+        - Products
+      security:
+        - Products_Module_API_BearerAuth: []
+      responses:
+        "200":
+          description: Produk berhasil dihapus
+  /products/{id}/stock:
+    servers: []
+    get:
+      summary: Mengambil informasi spesifik stok produk
+      tags:
+        - Products
+      security:
+        - Products_Module_API_BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Berhasil mengambil info stok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      productId:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      sku:
+                        type: string
+                      currentStock:
+                        type: integer
+                      minimumStock:
+                        type: integer
+                      status:
+                        type: string
+                        enum:
+                          - safe
+                          - low
+                          - out
+  /reports/summary:
+    servers: []
+    get:
+      summary: Mengambil rekapitulasi data gudang (Summary)
+      tags:
+        - Reports
+      security:
+        - Reports_Module_API_BearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+          description: Format YYYY-MM-DD. Jika kosong, default adalah hari ini.
+      responses:
+        "200":
+          description: Berhasil mengambil data summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Summary retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      totalProducts:
+                        type: integer
+                        example: 150
+                      totalCategories:
+                        type: integer
+                        example: 12
+                      totalLocations:
+                        type: integer
+                        example: 8
+                      totalStockInboundToday:
+                        type: integer
+                        example: 250
+                      totalStockOutboundToday:
+                        type: integer
+                        example: 120
+                      totalUsers:
+                        type: integer
+                        example: 5
+  /reports/low-stock:
+    servers: []
+    get:
+      summary: Mengambil daftar produk dengan stok di bawah threshold
+      tags:
+        - Reports
+      security:
+        - Reports_Module_API_BearerAuth: []
+      parameters:
+        - in: query
+          name: threshold
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+          description: Batas minimum stok
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+      responses:
+        "200":
+          description: Berhasil mengambil daftar produk stok rendah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Low stock products retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        sku:
+                          type: string
+                        stock:
+                          type: integer
+                        minimumStock:
+                          type: integer
+                        categoryName:
+                          type: string
+                        locationName:
+                          type: string
+  /movements/inbound:
+    servers: []
+    post:
+      summary: Mencatat barang masuk (Inbound)
+      tags:
+        - Stock Movements
+      security:
+        - Stock_Movements_Module_API_BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+                - quantity
+              properties:
+                productId:
+                  type: string
+                  format: uuid
+                  description: ID dari produk
+                quantity:
+                  type: integer
+                  minimum: 1
+                  description: Jumlah barang masuk (harus lebih dari 0)
+                notes:
+                  type: string
+                  description: Catatan opsional
+      responses:
+        "201":
+          description: Berhasil mencatat inbound dan stok bertambah
+  /movements/outbound:
+    servers: []
+    post:
+      summary: Mencatat barang keluar (Outbound)
+      tags:
+        - Stock Movements
+      security:
+        - Stock_Movements_Module_API_BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+                - quantity
+              properties:
+                productId:
+                  type: string
+                  format: uuid
+                quantity:
+                  type: integer
+                  minimum: 1
+                notes:
+                  type: string
+      responses:
+        "201":
+          description: Berhasil mencatat outbound dan stok berkurang
+        "400":
+          description: Gagal karena stok tidak mencukupi
+  /movements/history:
+    servers: []
+    get:
+      summary: Mengambil riwayat pergerakan stok
+      tags:
+        - Stock Movements
+      security:
+        - Stock_Movements_Module_API_BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: productId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum:
+              - INBOUND
+              - OUTBOUND
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Berhasil mengambil riwayat pergerakan stok
+components:
+  securitySchemes:
+    Activity_Logs_Module_API_BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Modul_Auth_WMS_BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Categories_Module_API_BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Dashboard_Stats_Module_API_BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Locations_Module_API_BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Products_Module_API_BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Reports_Module_API_BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Stock_Movements_Module_API_BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+servers:
+  - url: http://localhost:3000/api
+    description: Local development

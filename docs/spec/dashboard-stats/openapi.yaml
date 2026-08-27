@@ -1,0 +1,178 @@
+openapi: 3.1.0
+info:
+  title: Dashboard Stats Module API
+  version: 1.0.0
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /dashboard/stats:
+    get:
+      summary: Mengambil statistik dashboard
+      tags:
+        - Dashboard
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [today, week, month]
+            default: week
+          description: Periode filter data
+      responses:
+        '200':
+          description: Berhasil mengambil data statistik
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Dashboard stats retrieved successfully'
+                  data:
+                    type: object
+                    properties:
+                      overview:
+                        type: object
+                        properties:
+                          totalProducts:
+                            type: integer
+                          totalStock:
+                            type: integer
+                          lowStockCount:
+                            type: integer
+                          outOfStockCount:
+                            type: integer
+                      movements:
+                        type: object
+                        properties:
+                          totalInbound:
+                            type: integer
+                          totalOutbound:
+                            type: integer
+                          netMovement:
+                            type: integer
+                      topProducts:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            sku:
+                              type: string
+                            totalMovement:
+                              type: integer
+                      categoryDistribution:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            categoryName:
+                              type: string
+                            productCount:
+                              type: integer
+                            totalStock:
+                              type: integer
+        '401':
+          description: Tidak terautentikasi
+
+  /dashboard/recent-movements:
+    get:
+      summary: Mengambil pergerakan stok terbaru
+      tags:
+        - Dashboard
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+      responses:
+        '200':
+          description: Berhasil mengambil daftar pergerakan terbaru
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Recent movements retrieved successfully'
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                          enum: [IN, OUT, ADJUSTMENT]
+                        quantity:
+                          type: integer
+                        reference:
+                          type: string
+                          nullable: true
+                        notes:
+                          type: string
+                          nullable: true
+                        createdAt:
+                          type: string
+                          format: date-time
+                        product:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            sku:
+                              type: string
+                        user:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '401':
+          description: Tidak terautentikasi

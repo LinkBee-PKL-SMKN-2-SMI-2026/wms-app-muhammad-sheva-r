@@ -11,7 +11,7 @@ const prisma = new PrismaClient({ adapter });
 export const createLocation = catchAsync(async (req: Request, res: Response) => {
   const { code, name } = req.body;
 
-  const existingCode = await prisma.locations.findFirst({
+  const existingCode = await prisma.location.findFirst({
     where: { code: { equals: code, mode: 'insensitive' } },
   });
 
@@ -19,7 +19,7 @@ export const createLocation = catchAsync(async (req: Request, res: Response) => 
     throw new AppError('Kode lokasi sudah digunakan', 400);
   }
 
-  const existingName = await prisma.locations.findFirst({
+  const existingName = await prisma.location.findFirst({
     where: { name: { equals: name, mode: 'insensitive' } },
   });
 
@@ -27,7 +27,7 @@ export const createLocation = catchAsync(async (req: Request, res: Response) => 
     throw new AppError('Nama lokasi sudah digunakan', 400);
   }
 
-  const location = await prisma.locations.create({
+  const location = await prisma.location.create({
     data: { code, name },
   });
 
@@ -57,13 +57,13 @@ export const getAllLocations = catchAsync(async (req: Request, res: Response) =>
     : {};
 
   const [locations, total] = await Promise.all([
-    prisma.locations.findMany({
+    prisma.location.findMany({
       where: whereClause,
       skip,
       take: limit,
       orderBy: { [sort]: 'desc' },
     }),
-    prisma.locations.count({ where: whereClause }),
+    prisma.location.count({ where: whereClause }),
   ]);
 
   return res.status(200).json({
@@ -82,7 +82,7 @@ export const getAllLocations = catchAsync(async (req: Request, res: Response) =>
 export const getLocationById = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const location = await prisma.locations.findUnique({
+  const location = await prisma.location.findUnique({
     where: { id },
     include: {
       _count: {
@@ -106,13 +106,13 @@ export const updateLocation = catchAsync(async (req: Request, res: Response) => 
   const id = req.params.id as string;
   const { code, name, isActive } = req.body;
 
-  const existingLocation = await prisma.locations.findUnique({ where: { id } });
+  const existingLocation = await prisma.location.findUnique({ where: { id } });
   if (!existingLocation) {
     throw new AppError('Lokasi tidak ditemukan', 404);
   }
 
   if (code && code.toLowerCase() !== existingLocation.code.toLowerCase()) {
-    const duplicateCode = await prisma.locations.findFirst({
+    const duplicateCode = await prisma.location.findFirst({
       where: {
         code: { equals: code, mode: 'insensitive' },
         NOT: { id },
@@ -125,7 +125,7 @@ export const updateLocation = catchAsync(async (req: Request, res: Response) => 
   }
 
   if (name && name.toLowerCase() !== existingLocation.name.toLowerCase()) {
-    const duplicateName = await prisma.locations.findFirst({
+    const duplicateName = await prisma.location.findFirst({
       where: {
         name: { equals: name, mode: 'insensitive' },
         NOT: { id },
@@ -137,7 +137,7 @@ export const updateLocation = catchAsync(async (req: Request, res: Response) => 
     }
   }
 
-  const updatedLocation = await prisma.locations.update({
+  const updatedLocation = await prisma.location.update({
     where: { id },
     data: { code, name, isActive },
   });
@@ -153,7 +153,7 @@ export const updateLocation = catchAsync(async (req: Request, res: Response) => 
 export const deleteLocation = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const location = await prisma.locations.findUnique({
+  const location = await prisma.location.findUnique({
     where: { id },
     include: {
       _count: {
@@ -170,7 +170,7 @@ export const deleteLocation = catchAsync(async (req: Request, res: Response) => 
     throw new AppError('Lokasi tidak dapat dihapus karena masih digunakan oleh produk', 400);
   }
 
-  await prisma.locations.delete({ where: { id } });
+  await prisma.location.delete({ where: { id } });
 
   return res.status(200).json({
     status: 'success',

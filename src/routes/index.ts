@@ -4,8 +4,9 @@ import categoryRoute from './category.route';
 import locationRoute from './location.route';
 import productRoute from './product.route';
 import movement from './stock-movement.route';
-// 1. Tambahkan import untuk route activity log
 import activityLogRoute from './activity-log.route';
+import dashboardRoute from './dashboard.route';
+import reportRoute from './report.route'; // ← tambahkan ini
 
 const router = Router();
 
@@ -14,7 +15,8 @@ router.use('/categories', categoryRoute);
 router.use('/locations', locationRoute);
 router.use('/products', productRoute);
 router.use('/movements', movement);
-// 2. Daftarkan path-nya di sini
 router.use('/activity-logs', activityLogRoute);
+router.use('/dashboard', dashboardRoute);
+router.use('/reports', reportRoute); // ← tambahkan ini
 
 export default router;

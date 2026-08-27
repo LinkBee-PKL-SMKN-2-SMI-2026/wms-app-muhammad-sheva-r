@@ -40,76 +40,44 @@ paths:
       responses:
         '201':
           description: Berhasil mencatat inbound dan stok bertambah
-
-  /movements/outbound:
-    post:
-      summary: Mencatat barang keluar (Outbound)
-      tags:
-        - Stock Movements
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - productId
-                - quantity
-              properties:
-                productId:
-                  type: string
-                  format: uuid
-                quantity:
-                  type: integer
-                  minimum: 1
-                notes:
-                  type: string
-      responses:
-        '201':
-          description: Berhasil mencatat outbound dan stok berkurang
-        '400':
-          description: Gagal karena stok tidak mencukupi
-
-  /movements/history:
-    get:
-      summary: Mengambil riwayat pergerakan stok
-      tags:
-        - Stock Movements
-      security:
-        - BearerAuth: []
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 10
-        - in: query
-          name: productId
-          schema:
-            type: string
-            format: uuid
-        - in: query
-          name: type
-          schema:
-            type: string
-            enum: [INBOUND, OUTBOUND]
-        - in: query
-          name: startDate
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: endDate
-          schema:
-            type: string
-            format: date
-      responses:
-        '200':
-          description: Berhasil mengambil riwayat pergerakan stok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  message:
+                    type: string
+                    example: 'Barang masuk berhasil dicatat'
+                  data:
+                    type: object
+                    properties:
+                      movement:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          type:
+                            type: string
+                            enum: [IN, OUT, ADJUSTMENT]
+                          quantity:
+                            type: integer
+                          notes:
+                            type: string
+                            nullable: true
+                          userId:
+                            type: string
+                            format: uuid
+                          productId:
+                            type: string
+                            format: uuid
+                          createdAt:
+                            type: string
+                            format: date-time
+                      updatedProduct:
+                        type: object
+                        description: Data produk setelah stok diperbarui
+        '401':

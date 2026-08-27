@@ -31,10 +31,56 @@ paths:
           name: search
           schema:
             type: string
-            description: Pencarian berdasarkan nama
+            description: Pencarian berdasarkan nama atau deskripsi
+        - in: query
+          name: sort
+          schema:
+            type: string
+            default: createdAt
+            description: Field untuk pengurutan data
       responses:
         '200':
           description: Berhasil mengambil data kategori
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        description:
+                          type: string
+                          nullable: true
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '401':
+          description: Tidak terautentikasi
     post:
       summary: Membuat kategori baru (Hanya Admin)
       tags:
@@ -58,6 +104,49 @@ paths:
       responses:
         '201':
           description: Kategori berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  message:
+                    type: string
+                    example: 'Kategori berhasil dibuat'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      description:
+                        type: string
+                        nullable: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '400':
+          description: Nama kategori sudah digunakan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Nama kategori sudah digunakan'
+        '401':
+          description: Tidak terautentikasi
 
   /categories/{id}:
     parameters:
@@ -76,6 +165,52 @@ paths:
       responses:
         '200':
           description: Berhasil mengambil detail kategori
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      description:
+                        type: string
+                        nullable: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+                      _count:
+                        type: object
+                        properties:
+                          products:
+                            type: integer
+                            description: Jumlah produk yang terhubung ke kategori ini
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: Kategori tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Kategori tidak ditemukan'
     put:
       summary: Mengubah data kategori (Hanya Admin)
       tags:
@@ -93,11 +228,65 @@ paths:
                   type: string
                 description:
                   type: string
-                isActive:
-                  type: boolean
       responses:
         '200':
           description: Kategori berhasil diubah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  message:
+                    type: string
+                    example: 'Kategori berhasil diperbarui'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      description:
+                        type: string
+                        nullable: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '400':
+          description: Nama kategori sudah digunakan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Nama kategori sudah digunakan'
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: Kategori tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Kategori tidak ditemukan'
     delete:
       summary: Menghapus kategori (Hanya Admin)
       tags:
@@ -107,5 +296,42 @@ paths:
       responses:
         '200':
           description: Kategori berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  message:
+                    type: string
+                    example: 'Kategori berhasil dihapus'
         '400':
           description: Gagal dihapus karena masih ada produk yang terkait
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Kategori tidak dapat dihapus karena masih terhubung dengan produk'
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: Kategori tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Kategori tidak ditemukan'

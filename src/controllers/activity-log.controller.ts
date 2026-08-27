@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import { PrismaClient } from '../generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import type { AuthRequest } from '../models/auth.model';
@@ -47,7 +47,7 @@ export const getActivityLogs = catchAsync(async (req: AuthRequest, res: Response
   // Paralel query untuk performa tinggi
   const [logs, total] = await Promise.all([
     // Ambil data log sesuai filter dan pagination, beserta relasi info user
-    prisma.activity_Logs.findMany({
+    prisma.activityLog.findMany({
       where,
       include: {
         user: { select: { id: true, name: true, email: true } },
@@ -58,7 +58,7 @@ export const getActivityLogs = catchAsync(async (req: AuthRequest, res: Response
     }),
 
     // Hitung total data log berdasarkan filter yang berlaku
-    prisma.activity_Logs.count({ where }),
+    prisma.activityLog.count({ where }),
   ]);
 
   // Kirim respon akhir ke client

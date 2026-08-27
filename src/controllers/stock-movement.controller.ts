@@ -33,14 +33,14 @@ export const createInbound = async (
 
     // Pakai $transaction agar update stok & catat riwayat berjalan 1 paket
     const result = await prisma.$transaction(async (tx) => {
-      // a. Update Products.stock -> Tambahkan quantity (increment)
-      const updatedProduct = await tx.products.update({
+      // a. Update Product.stock -> Tambahkan quantity (increment)
+      const updatedProduct = await tx.product.update({
         where: { id: productId },
         data: { stock: { increment: quantity } },
       });
 
-      // b. Buat record baru di Stock_Movements dengan type INBOUND
-      const movement = await tx.stock_Movements.create({
+      // b. Buat record baru di StockMovement dengan type INBOUND
+      const movement = await tx.stockMovement.create({
         data: {
           type: 'INBOUND',
           quantity,
@@ -80,7 +80,7 @@ export const createOutbound = async (
     }
 
     // Cek produk & stok sebelum transaksi
-    const product = await prisma.products.findUnique({
+    const product = await prisma.product.findUnique({
       where: { id: productId },
     });
 
@@ -95,14 +95,14 @@ export const createOutbound = async (
 
     // Pakai $transaction untuk kurangi stok & buat catatan
     const result = await prisma.$transaction(async (tx) => {
-      // a. Update Products.stock -> Kurangi quantity (decrement)
-      const updatedProduct = await tx.products.update({
+      // a. Update Product.stock -> Kurangi quantity (decrement)
+      const updatedProduct = await tx.product.update({
         where: { id: productId },
         data: { stock: { decrement: quantity } },
       });
 
-      // b. Buat record baru di Stock_Movements dengan type OUTBOUND
-      const movement = await tx.stock_Movements.create({
+      // b. Buat record baru di StockMovement dengan type OUTBOUND
+      const movement = await tx.stockMovement.create({
         data: {
           type: 'OUTBOUND',
           quantity,
@@ -157,7 +157,7 @@ export const getMovementHistory = async (
     }
 
     const [movements, totalData] = await prisma.$transaction([
-      prisma.stock_Movements.findMany({
+      prisma.stockMovement.findMany({
         where: whereCondition,
         skip,
         take: limit,
@@ -174,14 +174,14 @@ export const getMovementHistory = async (
               sku: true,
             },
           },
-          user: {
+          User: {
             select: {
               name: true,
             },
           },
         },
       }),
-      prisma.stock_Movements.count({ where: whereCondition }),
+      prisma.stockMovement.count({ where: whereCondition }),
     ]);
 
     const totalPages = Math.ceil(totalData / limit);

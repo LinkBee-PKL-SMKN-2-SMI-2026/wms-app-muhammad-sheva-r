@@ -11,7 +11,7 @@ const prisma = new PrismaClient({ adapter });
 export const createCategory = catchAsync(async (req: Request, res: Response) => {
   const { name, description } = req.body;
 
-  const existingCategory = await prisma.categories.findFirst({
+  const existingCategory = await prisma.category.findFirst({
     where: { name: { equals: name, mode: 'insensitive' } },
   });
 
@@ -19,7 +19,7 @@ export const createCategory = catchAsync(async (req: Request, res: Response) => 
     throw new AppError('Nama kategori sudah digunakan', 400);
   }
 
-  const category = await prisma.categories.create({
+  const category = await prisma.category.create({
     data: { name, description },
   });
 
@@ -49,13 +49,13 @@ export const getAllCategories = catchAsync(async (req: Request, res: Response) =
     : {};
 
   const [categories, total] = await Promise.all([
-    prisma.categories.findMany({
+    prisma.category.findMany({
       where: whereClause,
       skip,
       take: limit,
       orderBy: { [sort]: 'desc' },
     }),
-    prisma.categories.count({ where: whereClause }),
+    prisma.category.count({ where: whereClause }),
   ]);
 
   return res.status(200).json({
@@ -74,7 +74,7 @@ export const getAllCategories = catchAsync(async (req: Request, res: Response) =
 export const getCategoryById = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const category = await prisma.categories.findUnique({
+  const category = await prisma.category.findUnique({
     where: { id },
     include: {
       _count: {
@@ -98,13 +98,13 @@ export const updateCategory = catchAsync(async (req: Request, res: Response) => 
   const id = req.params.id as string;
   const { name, description, isActive } = req.body;
 
-  const existingCategory = await prisma.categories.findUnique({ where: { id } });
+  const existingCategory = await prisma.category.findUnique({ where: { id } });
   if (!existingCategory) {
     throw new AppError('Kategori tidak ditemukan', 404);
   }
 
   if (name && name.toLowerCase() !== existingCategory.name.toLowerCase()) {
-    const duplicate = await prisma.categories.findFirst({
+    const duplicate = await prisma.category.findFirst({
       where: {
         name: { equals: name, mode: 'insensitive' },
         NOT: { id },
@@ -116,7 +116,7 @@ export const updateCategory = catchAsync(async (req: Request, res: Response) => 
     }
   }
 
-  const updatedCategory = await prisma.categories.update({
+  const updatedCategory = await prisma.category.update({
     where: { id },
     data: { name, description, isActive },
   });
@@ -132,7 +132,7 @@ export const updateCategory = catchAsync(async (req: Request, res: Response) => 
 export const deleteCategory = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const category = await prisma.categories.findUnique({
+  const category = await prisma.category.findUnique({
     where: { id },
     include: {
       _count: {
@@ -149,7 +149,7 @@ export const deleteCategory = catchAsync(async (req: Request, res: Response) => 
     throw new AppError('Kategori tidak dapat dihapus karena masih terhubung dengan produk', 400);
   }
 
-  await prisma.categories.delete({ where: { id } });
+  await prisma.category.delete({ where: { id } });
 
   return res.status(200).json({
     status: 'success',

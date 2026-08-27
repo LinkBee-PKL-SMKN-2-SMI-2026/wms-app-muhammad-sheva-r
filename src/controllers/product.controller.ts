@@ -12,7 +12,7 @@ export const createProduct = catchAsync(async (req: Request, res: Response) => {
   const { name, sku, description, stock, minimumStock, categoryId, locationId } = req.body;
 
   // Cek duplikat SKU
-  const existingSku = await prisma.products.findFirst({
+  const existingSku = await prisma.product.findFirst({
     where: { sku: { equals: sku, mode: 'insensitive' } },
   });
 
@@ -21,7 +21,7 @@ export const createProduct = catchAsync(async (req: Request, res: Response) => {
   }
 
   // Foreign key check manual: Validasi categoryId
-  const categoryExists = await prisma.categories.findUnique({
+  const categoryExists = await prisma.category.findUnique({
     where: { id: categoryId },
   });
   if (!categoryExists) {
@@ -29,14 +29,14 @@ export const createProduct = catchAsync(async (req: Request, res: Response) => {
   }
 
   // Foreign key check manual: Validasi locationId
-  const locationExists = await prisma.locations.findUnique({
+  const locationExists = await prisma.location.findUnique({
     where: { id: locationId },
   });
   if (!locationExists) {
     throw new AppError('Lokasi tidak ditemukan', 404);
   }
 
-  const product = await prisma.products.create({
+  const product = await prisma.product.create({
     data: {
       name,
       sku,
@@ -90,7 +90,7 @@ export const getAllProducts = catchAsync(async (req: Request, res: Response) => 
   }
 
   const [products, total] = await Promise.all([
-    prisma.products.findMany({
+    prisma.product.findMany({
       where: whereClause,
       skip,
       take: limit,
@@ -100,7 +100,7 @@ export const getAllProducts = catchAsync(async (req: Request, res: Response) => 
         location: true,
       },
     }),
-    prisma.products.count({ where: whereClause }),
+    prisma.product.count({ where: whereClause }),
   ]);
 
   return res.status(200).json({
@@ -119,7 +119,7 @@ export const getAllProducts = catchAsync(async (req: Request, res: Response) => 
 export const getProductById = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const product = await prisma.products.findUnique({
+  const product = await prisma.product.findUnique({
     where: { id },
     include: {
       category: true,
@@ -142,14 +142,14 @@ export const updateProduct = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
   const { name, sku, description, minimumStock, categoryId, locationId, isActive } = req.body;
 
-  const existingProduct = await prisma.products.findUnique({ where: { id } });
+  const existingProduct = await prisma.product.findUnique({ where: { id } });
   if (!existingProduct) {
     throw new AppError('Produk tidak ditemukan', 404);
   }
 
   // Cek duplikat SKU jika diubah
   if (sku && sku.toLowerCase() !== existingProduct.sku.toLowerCase()) {
-    const duplicateSku = await prisma.products.findFirst({
+    const duplicateSku = await prisma.product.findFirst({
       where: {
         sku: { equals: sku, mode: 'insensitive' },
         NOT: { id },
@@ -163,7 +163,7 @@ export const updateProduct = catchAsync(async (req: Request, res: Response) => {
 
   // Validasi categoryId jika diubah
   if (categoryId && categoryId !== existingProduct.categoryId) {
-    const categoryExists = await prisma.categories.findUnique({ where: { id: categoryId } });
+    const categoryExists = await prisma.category.findUnique({ where: { id: categoryId } });
     if (!categoryExists) {
       throw new AppError('Kategori tidak ditemukan', 404);
     }
@@ -171,13 +171,13 @@ export const updateProduct = catchAsync(async (req: Request, res: Response) => {
 
   // Validasi locationId jika diubah
   if (locationId && locationId !== existingProduct.locationId) {
-    const locationExists = await prisma.locations.findUnique({ where: { id: locationId } });
+    const locationExists = await prisma.location.findUnique({ where: { id: locationId } });
     if (!locationExists) {
       throw new AppError('Lokasi tidak ditemukan', 404);
     }
   }
 
-  const updatedProduct = await prisma.products.update({
+  const updatedProduct = await prisma.product.update({
     where: { id },
     data: {
       name,
@@ -205,7 +205,7 @@ export const updateProduct = catchAsync(async (req: Request, res: Response) => {
 export const deleteProduct = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const product = await prisma.products.findUnique({
+  const product = await prisma.product.findUnique({
     where: { id },
     include: {
       _count: {
@@ -226,7 +226,7 @@ export const deleteProduct = catchAsync(async (req: Request, res: Response) => {
     );
   }
 
-  await prisma.products.delete({ where: { id } });
+  await prisma.product.delete({ where: { id } });
 
   return res.status(200).json({
     status: 'success',
@@ -238,7 +238,7 @@ export const deleteProduct = catchAsync(async (req: Request, res: Response) => {
 export const getProductStockInfo = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
 
-  const product = await prisma.products.findUnique({
+  const product = await prisma.product.findUnique({
     where: { id },
     select: {
       id: true,

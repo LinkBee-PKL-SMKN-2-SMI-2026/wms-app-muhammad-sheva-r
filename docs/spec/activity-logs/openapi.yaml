@@ -75,6 +75,20 @@ paths:
                         id:
                           type: string
                           format: uuid
+                        userId:
+                          type: string
+                          format: uuid
+                        user:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            email:
+                              type: string
+                              format: email
                         action:
                           type: string
                           enum: [CREATE, UPDATE, DELETE, LOGIN, LOGOUT]
@@ -84,12 +98,13 @@ paths:
                           type: string
                           format: uuid
                           nullable: true
-                        detail:
+                        details:
                           type: object
                           additionalProperties: true
                           nullable: true
-                        userName:
+                        ipAddress:
                           type: string
+                          nullable: true
                         createdAt:
                           type: string
                           format: date-time
@@ -104,3 +119,16 @@ paths:
                         type: integer
                       totalPages:
                         type: integer
+        '401':
+          description: Tidak terautentikasi (token tidak ditemukan, tidak valid, atau sudah kedaluwarsa)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Token tidak valid atau sudah kadaluwarsa'

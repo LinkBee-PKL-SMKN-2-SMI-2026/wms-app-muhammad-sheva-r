@@ -86,6 +86,8 @@ paths:
                               type: integer
                             totalStock:
                               type: integer
+        '401':
+          description: Tidak terautentikasi
 
   /dashboard/recent-movements:
     get:
@@ -131,11 +133,15 @@ paths:
                           format: uuid
                         type:
                           type: string
-                          enum: [INBOUND, OUTBOUND]
+                          enum: [IN, OUT, ADJUSTMENT]
                         quantity:
                           type: integer
+                        reference:
+                          type: string
+                          nullable: true
                         notes:
                           type: string
+                          nullable: true
                         createdAt:
                           type: string
                           format: date-time
@@ -168,3 +174,5 @@ paths:
                         type: integer
                       totalPages:
                         type: integer
+        '401':
+          description: Tidak terautentikasi

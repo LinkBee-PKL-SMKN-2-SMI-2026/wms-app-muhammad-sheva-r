@@ -21,10 +21,17 @@ paths:
           name: page
           schema:
             type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
         - in: query
           name: search
           schema:
             type: string
+            description: Pencarian berdasarkan nama, SKU, atau deskripsi
         - in: query
           name: categoryId
           schema:
@@ -35,11 +42,41 @@ paths:
           schema:
             type: string
             format: uuid
+        - in: query
+          name: sort
+          schema:
+            type: string
+            default: createdAt
       responses:
         '200':
           description: Berhasil mengambil data produk
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductWithRelations'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '401':
+          description: Tidak terautentikasi
     post:
-      summary: Membuat produk baru (Hanya Admin)
+      summary: Membuat produk baru (Admin & Manager)
       tags:
         - Products
       security:
@@ -67,7 +104,7 @@ paths:
                   default: 0
                 minimumStock:
                   type: integer
-                  default: 10
+                  default: 0
                 categoryId:
                   type: string
                   format: uuid
@@ -77,6 +114,49 @@ paths:
       responses:
         '201':
           description: Produk berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  message:
+                    type: string
+                    example: 'Produk berhasil dibuat'
+                  data:
+                    $ref: '#/components/schemas/ProductWithRelations'
+        '400':
+          description: SKU sudah digunakan oleh produk lain
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'SKU sudah digunakan oleh produk lain'
+        '401':
+          description: Tidak terautentikasi
+        '403':
+          description: Tidak memiliki akses (hanya ADMIN atau MANAGER)
+        '404':
+          description: Kategori atau lokasi tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Kategori tidak ditemukan'
 
   /products/{id}:
     parameters:
@@ -95,8 +175,33 @@ paths:
       responses:
         '200':
           description: Detail produk berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'success'
+                  data:
+                    $ref: '#/components/schemas/ProductWithRelations'
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: Produk tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'Produk tidak ditemukan'
     put:
-      summary: Mengubah produk (Hanya Admin)
+      summary: Mengubah produk (Admin & Manager)
       description: Stock tidak bisa diupdate dari sini, melainkan melalui Stock Movements.
       tags:
         - Products
@@ -117,8 +222,6 @@ paths:
                   type: string
                 minimumStock:
                   type: integer
-                isActive:
-                  type: boolean
                 categoryId:
                   type: string
                   format: uuid
@@ -128,56 +231,44 @@ paths:
       responses:
         '200':
           description: Produk berhasil diubah
-    delete:
-      summary: Menghapus produk (Hanya Admin)
-      tags:
-        - Products
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Produk berhasil dihapus
-
-  /products/{id}/stock:
-    get:
-      summary: Mengambil informasi spesifik stok produk
-      tags:
-        - Products
-      security:
-        - BearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Berhasil mengambil info stok
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success:
-                    type: boolean
+                  status:
+                    type: string
+                    example: 'success'
                   message:
                     type: string
+                    example: 'Produk berhasil diperbarui'
                   data:
-                    type: object
-                    properties:
-                      productId:
-                        type: string
-                        format: uuid
-                      name:
-                        type: string
-                      sku:
-                        type: string
-                      currentStock:
-                        type: integer
-                      minimumStock:
-                        type: integer
-                      status:
-                        type: string
-                        enum: [safe, low, out]
+                    $ref: '#/components/schemas/ProductWithRelations'
+        '400':
+          description: SKU sudah digunakan oleh produk lain
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:
+                    type: string
+                    example: 'SKU sudah digunakan oleh produk lain'
+        '401':
+          description: Tidak terautentikasi
+        '403':
+          description: Tidak memiliki akses (hanya ADMIN atau MANAGER)
+        '404':
+          description: Produk, kategori, atau lokasi tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'error'
+                  message:

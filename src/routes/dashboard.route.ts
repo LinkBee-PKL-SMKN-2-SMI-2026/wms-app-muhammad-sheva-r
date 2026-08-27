@@ -1,15 +1,11 @@
-import z from 'zod';
+// src/routes/dashboard.route.ts
+import { Router } from 'express';
+import { getDashboardStats, getRecentMovements } from '../controllers/dashboard.controller';
+import { authenticate } from '../middlewares/authenticate.middleware';
 
-export const GetSummarySchema = z.object({
-  query: z.object({
-    date: z.string().optional(), // Format: YYYY-MM-DD, default: hari ini
-  }),
-});
+const router = Router();
 
-export const GetLowStockSchema = z.object({
-  query: z.object({
-    threshold: z.coerce.number().int().positive().default(10),
-    page: z.coerce.number().int().positive().default(1),
-    limit: z.coerce.number().int().positive().max(100).default(10),
-  }),
-});
+router.get('/stats', authenticate, getDashboardStats);
+router.get('/recent-movements', authenticate, getRecentMovements);
+
+export default router;

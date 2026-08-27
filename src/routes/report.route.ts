@@ -5,7 +5,6 @@ import { validate } from '../middlewares/validate.middleware';
 import { GetSummarySchema, GetLowStockSchema } from '../models/reporting.dto';
 import z from 'zod';
 
-
 export const GetSummarySchema = z.object({
   query: z.object({
     date: z.string().optional(),
@@ -19,10 +18,10 @@ export const GetLowStockSchema = z.object({
     limit: z.coerce.number().int().positive().max(100).default(10),
   }),
 });
- 
+
 const router = Router();
- 
+
 router.get('/summary', authenticate, validate(GetSummarySchema), getSummary);
 router.get('/low-stock', authenticate, validate(GetLowStockSchema), getLowStock);
- 
+
 export default router;
